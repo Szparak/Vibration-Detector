@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Vibration Detector</string>
+    <string name="title_activity_nowy_pomiar">NowyPomiar</string>
+    <string name="main_title">Vibration Detector</string>
+    <string name="nowy_pomiar">New measurement</string>
+    <string name="wczytaj_pomiar">Load data</string>
+    <string name="sampling_time">Sampling time[Hz]</string>
+    <string name="measurement_time">Measurement time[s]</string>
+    <string name="start">Start</string>
+    <string name="enter_parameters">Enter parameters</string>
+    <string name="file_name">File name</string>
+    <string name="new_measurement">New measurement</string>
+    <string name="vibration_detector_ver_beta">Vibration Detector ver: beta</string>
+</resources>
