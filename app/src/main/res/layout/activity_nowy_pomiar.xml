@@ -91,6 +91,7 @@
                         android:layout_marginLeft="8dp"
                         android:layout_marginRight="8dp"
                         android:layout_marginTop="8dp"
+                        android:scrollbarSize="100dp"
                         app:layout_constraintBottom_toBottomOf="@+id/graph1"
                         app:layout_constraintLeft_toLeftOf="@+id/graph1"
                         app:layout_constraintRight_toRightOf="@+id/graph1"

@@ -11,4 +11,10 @@
     <string name="file_name">File name</string>
     <string name="new_measurement">New measurement</string>
     <string name="vibration_detector_ver_beta">Vibration Detector ver: beta</string>
+    <string name="window_label">Enter measurement window time</string>
+    <string name="title_activity_new_measurement">NewMeasurement</string>
+    <string name="z_axis_string">Z axis</string>
+    <string name="y_axis_string">Y axis</string>
+    <string name="x_axis_string">X axis</string>
+
 </resources>

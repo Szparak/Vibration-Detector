@@ -10,6 +10,7 @@ public interface MeasurementContract {
     }
 
     interface MeasurementPresenter{
-
+        void attach(MeasurementView view);
+        void detach();
     }
 }
