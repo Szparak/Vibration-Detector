@@ -13,6 +13,8 @@
 
         <service android:name=".DataService"
             android:exported="false"/>
+        <service android:name=".DFTService"
+            android:exported="false"/>
 
         <activity
             android:name=".MainActivity"
