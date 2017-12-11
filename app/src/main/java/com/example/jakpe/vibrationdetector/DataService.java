@@ -52,21 +52,19 @@ public class DataService extends IntentService implements SensorEventListener {
         int samplingInMilis = 1000/samplingFrequency;
         accelerationValuesInWindow = new double[windowTimeinMilis/samplingInMilis];
         Intent broadcastIntent = new Intent(ACTION);
+        double frequencySize =(double) samplingFrequency / accelerationValuesInWindow.length ;
 
         while(!isStopped){
 
             try {
-                if((timeOnEnd-timeOnBeggining) < samplingInMilis)
-                    Thread.sleep((long) samplingInMilis - (timeOnEnd-timeOnBeggining));
-                else
-                    Thread.sleep((long) samplingInMilis);
+                    Thread.sleep((long) samplingInMilis -(timeOnEnd-timeOnBeggining));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             timeOnBeggining = SystemClock.currentThreadTimeMillis();
 
             if(iteration == accelerationValuesInWindow.length-1){
-                startDFTService(accelerationValuesInWindow);
+                new Thread(() -> startDFTService(accelerationValuesInWindow, frequencySize)).start();
                 iteration=0;
             }
 
@@ -81,10 +79,10 @@ public class DataService extends IntentService implements SensorEventListener {
         }
     }
 
-    private void startDFTService(double[] valuesArray){
+    private void startDFTService(double[] valuesArray, double frequencySize){
         Intent dftIntent = new Intent(this , DFTService.class);
         dftIntent.putExtra("acceleration values" , valuesArray);
-        dftIntent.putExtra("sampling frequency" , samplingFrequency);
+        dftIntent.putExtra("frequency size" , frequencySize);
         startService(dftIntent);
     }
 

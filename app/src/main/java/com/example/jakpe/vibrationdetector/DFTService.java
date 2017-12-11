@@ -13,8 +13,8 @@ import android.support.v4.content.LocalBroadcastManager;
 public class DFTService extends IntentService {
 
     private double[] accelerationValuesInWindow;
-    private int samplingFrequency;
-    private double[] absDftvalues;
+    private double frequencySize;
+    private double[] absDftValues;
     public static final String ACTION = "com.example.jakpe.vibrationdetector.DFTService";
 
     public DFTService() {
@@ -25,15 +25,19 @@ public class DFTService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         Intent broadcastIntent = new Intent(ACTION);
         accelerationValuesInWindow = intent.getDoubleArrayExtra("acceleration values");
-        samplingFrequency = intent.getIntExtra("sampling frequency", 0);
+        frequencySize = intent.getDoubleExtra("frequency size", 0 );
+        double twoHighestFrequencies[];
 
         DFTCalculations dftCalculation = new DFTCalculations();
         dftCalculation.calculateDFT(accelerationValuesInWindow);
-        absDftvalues = dftCalculation.calculateAbsValueOfDFT();
+        absDftValues = dftCalculation.calculateAndGetAbsValueOfDFT();
+        twoHighestFrequencies = dftCalculation.calculateTwoHighestFrequencies(frequencySize);
+
 
         broadcastIntent.putExtra("resultCode" , Activity.RESULT_OK);
-        broadcastIntent.putExtra("sampling frequency", samplingFrequency);
-        broadcastIntent.putExtra("acceleration values", absDftvalues);
+        broadcastIntent.putExtra("frequency size", frequencySize);
+        broadcastIntent.putExtra("acceleration values", absDftValues);
+        broadcastIntent.putExtra("highest frequencies" , twoHighestFrequencies);
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
 
     }

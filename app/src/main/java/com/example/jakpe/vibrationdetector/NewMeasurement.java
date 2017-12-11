@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.example.jakpe.vibrationdetector.implementations.MeasurementPresenterImpl;
 import com.example.jakpe.vibrationdetector.implementations.MeasurementRepositoryImpl;
@@ -29,14 +30,12 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
 
     private MeasurementPresenterImpl measurementPresenter = new MeasurementPresenterImpl(MeasurementRepositoryImpl.getInstance());
     private LineGraphSeries<DataPoint> XAxisAccSeries, YAxisAccSeries, ZAxisAccSeries;
-    private BarGraphSeries<DataPoint> dftSeries;
     Intent mySensorIntent;
     @BindView(R.id.new_measurement_toolbar) Toolbar myToolbar;
-//    @BindView(R.id.main_frequency) TextView mainFrequencyTextView;
-//    @BindView(R.id.progress_bar) ProgressBar savingProgressBar;
     @BindView(R.id.accelerometer_graph) GraphView accelerometerGraph;
     @BindView(R.id.dtf_graph) GraphView dftGraph;
-    long czas1,czas2;
+    @BindView(R.id.first_freqency) TextView firstFrequencyTextView;
+    @BindView(R.id.second_frequency) TextView secondFrequencyTextView;
     private int windowTime;
     private double vectorTime;
 
@@ -54,12 +53,13 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
         setPresenter();
     }
 
+
+
     private void setPresenter(){
         measurementPresenter.attach(this);
     }
 
     private void initUi(){
-//        savingProgressBar.setVisibility(View.INVISIBLE);
         vectorTime=0;
 
         setSupportActionBar(myToolbar);
@@ -73,7 +73,6 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
         configureGraphs();
         addSeries();
         startDataService("X");
-
     }
 
     private void addSeries(){
@@ -176,6 +175,7 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
     }
 
 
+
     private void startDataService(String axis){
         mySensorIntent = new Intent(this, DataService.class);
         mySensorIntent.putExtra("axis" ,  axis);
@@ -191,7 +191,6 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
             int resultCode = intent.getIntExtra("resultCode", RESULT_CANCELED);
             if (resultCode == RESULT_OK) {
                 double resultValue = intent.getDoubleExtra("resultValue",0);
-//                double xTimeVector = intent.getDoubleExtra("xTimeVector" , 0 );
                 String axis = intent.getStringExtra("axis");
 
                 if(axis!=null){
@@ -220,18 +219,17 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
             int resultCode = intent.getIntExtra("resultCode", RESULT_CANCELED);
             if (resultCode == RESULT_OK) {
                 double absDftValues[] = intent.getDoubleArrayExtra("acceleration values");
-                double samplingFrequency = intent.getIntExtra("sampling frequency", 0 );
-                double frequencySize = samplingFrequency/absDftValues.length;
+                double frequencySize = intent.getDoubleExtra("frequency size", 0 );
+                double twoFrequencies[] = intent.getDoubleArrayExtra("highest frequencies");
                 DataPoint[] dataPoints = new DataPoint[absDftValues.length];
-                System.out.println(frequencySize);
+                showFrequencies(twoFrequencies);
+
                 new Thread(() -> {
                     double xAxisPoint=0;
-
                     for(int i=0; i<dataPoints.length; i++){
                         dataPoints[i] = new DataPoint(xAxisPoint, absDftValues[i]);
                         xAxisPoint+=frequencySize;
                     }
-
                     showDftData(dataPoints, frequencySize);
                 }).start();
 
@@ -246,6 +244,7 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
         IntentFilter filter = new IntentFilter(DataService.ACTION);
         IntentFilter dftFilter = new IntentFilter(DFTService.ACTION);
 
+
         LocalBroadcastManager.getInstance(this).registerReceiver(testReceiver, filter);
         LocalBroadcastManager.getInstance(this).registerReceiver(dftReceiver, dftFilter);
     }
@@ -253,6 +252,7 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
     @Override
     protected void onPause() {
         super.onPause();
+        DataService.isStopped = true;
         LocalBroadcastManager.getInstance(this).unregisterReceiver(testReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(dftReceiver);
     }
@@ -274,9 +274,21 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
     public void showDftData(DataPoint[] dataPoints, double frequencySize){
         dftGraph.getViewport().setMaxX(dataPoints.length*frequencySize);
         dftGraph.removeAllSeries();
-        dftSeries = new BarGraphSeries<>(dataPoints);
+
+        BarGraphSeries<DataPoint> dftSeries = new BarGraphSeries<>(dataPoints);
         dftGraph.addSeries(dftSeries);
+
     }
+
+    private void showFrequencies(double[] twoFrequencies){
+        String textF1 = "f1 = " + String.valueOf(twoFrequencies[0]) + "Hz";
+        String textF2 = "f2 = " + String.valueOf(twoFrequencies[1]) + "Hz";
+        firstFrequencyTextView.setText(textF1);
+        secondFrequencyTextView.setText(textF2);
+    }
+
+
+
 
     @Override
     protected void onDestroy() {
