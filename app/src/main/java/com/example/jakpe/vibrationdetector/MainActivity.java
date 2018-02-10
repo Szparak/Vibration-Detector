@@ -81,11 +81,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
 
     @Override
     public void startNewMeasurementActivity() {
-        final Intent newMeasurementActivity = new Intent(this, NewMeasurement.class);
+        final Intent chartsActivity = new Intent(this, ChartsActivity.class);
         int number = Integer.valueOf(windowEditText.getText().toString());
-        newMeasurementActivity.putExtra("Window Time", number);
+        chartsActivity.putExtra("Window Time", number);
 
-        startActivity(newMeasurementActivity);
+        startActivity(chartsActivity);
     }
 
     @Override

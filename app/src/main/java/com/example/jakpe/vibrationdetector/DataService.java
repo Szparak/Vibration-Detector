@@ -19,16 +19,19 @@ import android.widget.Toast;
 
 public class DataService extends IntentService implements SensorEventListener {
     public static volatile boolean isStopped;
-    private double accelerationValue=0;
-    double gravity=0;
+    private double accelerationValueX=0;
+    private double accelerationValueY=0;
+    private double accelerationValueZ=0;
+    double gravityX=0, gravityY=0, gravityZ=0;
     private SensorManager mSensorManager;
     private Sensor mSensor;
     private final int samplingFrequency = 50;
     long timeOnBeggining, timeOnEnd;
     private int windowTimeinMilis;
     public static final String ACTION = "com.example.jakpe.vibrationdetector.DataService";
-    private String axis=null;
     private double[] accelerationValuesInWindow;
+    private long readTime=0, readTemp=0;
+    String axis;
 
 
     public DataService() {
@@ -45,13 +48,16 @@ public class DataService extends IntentService implements SensorEventListener {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
 
-        axis = intent.getStringExtra("axis");
         windowTimeinMilis = intent.getIntExtra("Window Time" , 0) * 1000;
+        axis = intent.getStringExtra("axis");
+        System.out.println("DataServiceAxis " + axis);
+        String analysisMode = intent.getStringExtra("Analysis Mode");
 
         int iteration =0;
         int samplingInMilis = 1000/samplingFrequency;
         accelerationValuesInWindow = new double[windowTimeinMilis/samplingInMilis];
         Intent broadcastIntent = new Intent(ACTION);
+        broadcastIntent.putExtra("resultCode" , Activity.RESULT_OK);
         double frequencySize =(double) samplingFrequency / accelerationValuesInWindow.length ;
 
         while(!isStopped){
@@ -63,18 +69,21 @@ public class DataService extends IntentService implements SensorEventListener {
             }
             timeOnBeggining = SystemClock.currentThreadTimeMillis();
 
-            if(iteration == accelerationValuesInWindow.length-1){
-                new Thread(() -> startDFTService(accelerationValuesInWindow, frequencySize)).start();
-                iteration=0;
+            if(analysisMode!=null && analysisMode.equals("ON")){
+                if(iteration == accelerationValuesInWindow.length-1){
+                    new Thread(() -> startDFTService(accelerationValuesInWindow, frequencySize)).start();
+                    iteration=0;
+                }
+
+                putValueIntoAxisArray(axis, iteration);
+                iteration++;
             }
 
-            accelerationValuesInWindow[iteration] = accelerationValue;
-
-            broadcastIntent.putExtra("resultCode" , Activity.RESULT_OK);
-            broadcastIntent.putExtra("resultValue" , accelerationValue);
-            broadcastIntent.putExtra("axis" , axis);
+            broadcastIntent.putExtra("resultValueX" , accelerationValueX);
+            broadcastIntent.putExtra("resultValueY" , accelerationValueY);
+            broadcastIntent.putExtra("resultValueZ" , accelerationValueZ);
             LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
-            iteration++;
+
             timeOnEnd = SystemClock.currentThreadTimeMillis();
         }
     }
@@ -84,6 +93,17 @@ public class DataService extends IntentService implements SensorEventListener {
         dftIntent.putExtra("acceleration values" , valuesArray);
         dftIntent.putExtra("frequency size" , frequencySize);
         startService(dftIntent);
+    }
+
+    private void putValueIntoAxisArray(String axis, int iteration){
+
+        if(axis.equals("X"))
+                accelerationValuesInWindow[iteration] = accelerationValueX;
+        if(axis.equals("Y"))
+                accelerationValuesInWindow[iteration] = accelerationValueY;
+        if(axis.equals("Z"))
+                accelerationValuesInWindow[iteration] = accelerationValueZ;
+
     }
 
     void setupSensor(){
@@ -104,24 +124,17 @@ public class DataService extends IntentService implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
+        //póki co bez filtracji, w ustawieniach bedzie opcja wyboru?? moze...
+
+
         final double alpha = 0.8;
-        // Isolate the force of gravity with the low-pass filter.
-        if(axis!=null){
-            switch(axis){
-                case "X":
-                    gravity = alpha * gravity + (1 - alpha) * sensorEvent.values[0];
-                    accelerationValue=sensorEvent.values[0] - gravity;
-                    break;
-                case "Y":
-                    gravity = alpha * gravity + (1 - alpha) * sensorEvent.values[1];
-                    accelerationValue=sensorEvent.values[1] - gravity;
-                    break;
-                case "Z":
-                    gravity = alpha * gravity + (1 - alpha) * sensorEvent.values[2];
-                    accelerationValue=sensorEvent.values[2] - gravity;
-                    break;
-            }
-        }
+        gravityX = alpha * gravityX + (1 - alpha) * sensorEvent.values[0];
+        gravityY = alpha * gravityY + (1 - alpha) * sensorEvent.values[1];
+        gravityZ = alpha * gravityZ + (1 - alpha) * sensorEvent.values[2];
+
+        accelerationValueX=sensorEvent.values[0] - gravityX;
+        accelerationValueY=sensorEvent.values[1] - gravityY;
+        accelerationValueZ=sensorEvent.values[2] - gravityZ;
 
     }
 

@@ -6,4 +6,7 @@
     <color name="barColor">#404040</color>
     <color name="checkboxColor">#3A7394</color>
     <color name="white">#FFFFFF</color>
+    <color name="buttonXColor">#42A5F5</color>
+    <color name="buttonYColor">#EF5350</color>
+    <color name="buttonZColor">#66BB6A</color>
 </resources>

@@ -29,15 +29,22 @@ import butterknife.ButterKnife;
 public class NewMeasurement extends AppCompatActivity implements MeasurementContract.MeasurementView{
 
     private MeasurementPresenterImpl measurementPresenter = new MeasurementPresenterImpl(MeasurementRepositoryImpl.getInstance());
-    private LineGraphSeries<DataPoint> XAxisAccSeries, YAxisAccSeries, ZAxisAccSeries;
+    private LineGraphSeries<DataPoint> axisAccSeries;
     Intent mySensorIntent;
-    @BindView(R.id.new_measurement_toolbar) Toolbar myToolbar;
-    @BindView(R.id.accelerometer_graph) GraphView accelerometerGraph;
-    @BindView(R.id.dtf_graph) GraphView dftGraph;
-    @BindView(R.id.first_freqency) TextView firstFrequencyTextView;
-    @BindView(R.id.second_frequency) TextView secondFrequencyTextView;
-    private int windowTime;
+    @BindView(R.id.new_measurement_toolbar)
+    Toolbar myToolbar;
+    @BindView(R.id.accelerometer_graph)
+    GraphView accelerometerGraph;
+    @BindView(R.id.dtf_graph)
+    GraphView dftGraph;
+    @BindView(R.id.first_freqency)
+    TextView firstFrequencyTextView;
+    @BindView(R.id.second_frequency)
+    TextView secondFrequencyTextView;
+    private int windowTime=5;
+    String axis;
     private double vectorTime;
+    StringBuilder stringBuilder = new StringBuilder();
 
 
     @Override
@@ -47,7 +54,10 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
         ButterKnife.bind(this);
 
         Bundle data = getIntent().getExtras();
-        windowTime = data.getInt("Window Time");
+        axis = data.getString("axis");
+
+        stringBuilder.append("resultValue").append(axis);
+        System.out.println(stringBuilder.toString());
 
         initUi();
         setPresenter();
@@ -72,25 +82,12 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
 
         configureGraphs();
         addSeries();
-        startDataService("X");
     }
 
     private void addSeries(){
-        XAxisAccSeries = new LineGraphSeries<>();
-        XAxisAccSeries.setTitle("X axis acceleration [m/s^2]");
-        XAxisAccSeries.setColor(Color.BLUE);
-        accelerometerGraph.addSeries(XAxisAccSeries);
-
-        YAxisAccSeries = new LineGraphSeries<>();
-        YAxisAccSeries.setTitle("Y axis acceleration [m/s^2]");
-        YAxisAccSeries.setColor(Color.RED);
-        accelerometerGraph.addSeries(YAxisAccSeries);
-
-        ZAxisAccSeries = new LineGraphSeries<>();
-        ZAxisAccSeries.setTitle("Z axis acceleration [m/s^2]");
-        ZAxisAccSeries.setColor(Color.GREEN);
-        accelerometerGraph.addSeries(ZAxisAccSeries);
-
+        axisAccSeries = new LineGraphSeries<>();
+        axisAccSeries.setColor(Color.CYAN);
+        accelerometerGraph.addSeries(axisAccSeries);
     }
 
     private void configureGraphs(){
@@ -99,8 +96,6 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
         accelerometerGraph.getViewport().setMaxX(2);
         accelerometerGraph.getViewport().setScalable(true); // enables horizontal zooming and scrolling
         accelerometerGraph.getViewport().setScalableY(true); // enables vertical zooming and scrolling
-        accelerometerGraph.getLegendRenderer().setVisible(true);
-        accelerometerGraph.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
         accelerometerGraph.getGridLabelRenderer().setHorizontalLabelsColor(Color.WHITE);
         accelerometerGraph.getGridLabelRenderer().setVerticalLabelsColor(Color.WHITE);
         accelerometerGraph.getGridLabelRenderer().setGridColor(Color.WHITE);
@@ -126,91 +121,83 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        switch(item.getItemId()){
-            case R.id.x_axis:
-                if(!item.isChecked()){
-                    item.setChecked(true);
-                    DataService.isStopped = true;
-                    try {
-                        Thread.sleep(20);
-                        vectorTime+=0.02;
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    startDataService("X");
-                }
-                break;
-            case R.id.y_axis:
-                if(!item.isChecked()){
-                    item.setChecked(true);
-                    DataService.isStopped = true;
-                    try {
-                        Thread.sleep(20);
-                        vectorTime+=0.02;
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    startDataService("Y");
-                }
-                break;
-            case R.id.z_axis:
-                if(!item.isChecked()){
-                    item.setChecked(true);
-                    DataService.isStopped = true;
-                    try {
-                        Thread.sleep(20);
-                        vectorTime+=0.02;
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    startDataService("Z");
-                }
-                break;
-            case R.id.save:
-
-
-                break;
-        }
+//        switch(item.getItemId()){
+//            case R.id.x_axis:
+//                if(!item.isChecked()){
+//                    item.setChecked(true);
+//                    DataService.isStopped = true;
+//                    try {
+//                        Thread.sleep(20);
+//                        vectorTime+=0.02;
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+////                    startDataService("X");
+//                }
+//                break;
+//            case R.id.y_axis:
+//                if(!item.isChecked()){
+//                    item.setChecked(true);
+//                    DataService.isStopped = true;
+//                    try {
+//                        Thread.sleep(20);
+//                        vectorTime+=0.02;
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+////                    startDataService("Y");
+//                }
+//                break;
+//            case R.id.z_axis:
+//                if(!item.isChecked()){
+//                    item.setChecked(true);
+//                    DataService.isStopped = true;
+//                    try {
+//                        Thread.sleep(20);
+//                        vectorTime+=0.02;
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+////                    startDataService("Z");
+//                }
+//                break;
+//            case R.id.save:
+//
+//
+//                break;
+//        }
         return super.onOptionsItemSelected(item);
     }
 
 
 
-    private void startDataService(String axis){
+    private void startDataService(){
         mySensorIntent = new Intent(this, DataService.class);
         mySensorIntent.putExtra("axis" ,  axis);
         mySensorIntent.putExtra("Window Time" , windowTime);
+        mySensorIntent.putExtra("Analysis Mode", "ON");
         startService(mySensorIntent);
     }
 
     private BroadcastReceiver testReceiver = new BroadcastReceiver() {
         DataPoint dataPoint;
 
+
         @Override
         public void onReceive(Context context, Intent intent) {
+
             int resultCode = intent.getIntExtra("resultCode", RESULT_CANCELED);
             if (resultCode == RESULT_OK) {
-                double resultValue = intent.getDoubleExtra("resultValue",0);
-                String axis = intent.getStringExtra("axis");
+                double resultValue = intent.getDoubleExtra(stringBuilder.toString(),0);
 
-                if(axis!=null){
                     dataPoint = new DataPoint(vectorTime, resultValue);
-                    switch(axis){
-                        case "X":
-                            appendXData(dataPoint);
-                            break;
-                        case "Y":
-                            appendYData(dataPoint);
-                            break;
-                        case "Z":
-                            appendZData(dataPoint);
-                            break;
-                    }
+                    appendData(dataPoint);
+
                 }
                 vectorTime+=0.02;
 
             }
-        }
+
     };
 
     private BroadcastReceiver dftReceiver = new BroadcastReceiver() {
@@ -247,29 +234,27 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
 
         LocalBroadcastManager.getInstance(this).registerReceiver(testReceiver, filter);
         LocalBroadcastManager.getInstance(this).registerReceiver(dftReceiver, dftFilter);
+        startDataService();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         DataService.isStopped = true;
+        try {
+            Thread.sleep(20);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         LocalBroadcastManager.getInstance(this).unregisterReceiver(testReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(dftReceiver);
     }
 
-    public void appendXData(DataPoint dataPoint) {
-        XAxisAccSeries.appendData(dataPoint, true, 250);
+    public void appendData(DataPoint dataPoint) {
+        axisAccSeries.appendData(dataPoint, true, 250);
     }
 
 
-    public void appendYData(DataPoint dataPoint) {
-        YAxisAccSeries.appendData(dataPoint, true, 250);
-    }
-
-
-    public void appendZData(DataPoint dataPoint) {
-        ZAxisAccSeries.appendData(dataPoint, true, 250);
-    }
 
     public void showDftData(DataPoint[] dataPoints, double frequencySize){
         dftGraph.getViewport().setMaxX(dataPoints.length*frequencySize);
