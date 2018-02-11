@@ -9,7 +9,16 @@ public class DFTCalculations {
     private double outReal[];
     private double outImag[];
     private double absValue[];
+    private double highestAccelerationAmplitude=0;
+    private double highestDisplacementAmplitude=0;
 
+    public double getHighestDisplacementAmplitude() {
+        return roundDoubleValue(highestDisplacementAmplitude,2);
+    }
+
+    public double getHighestAmplitude() {
+        return roundDoubleValue(highestAccelerationAmplitude, 2);
+    }
 
     public void calculateDFT(double[] inreal) {
         int n = inreal.length;
@@ -23,8 +32,8 @@ public class DFTCalculations {
                 sumReal +=  inreal[t] * Math.cos(angle);
                 sumImag += -inreal[t] * Math.sin(angle);
             }
-            outReal[k] = sumReal;
-            outImag[k] = sumImag;
+            outReal[k] = sumReal/(n*0.4);
+            outImag[k] = sumImag/(n*0.4); //zrobione na pałe, do zmiany xD póki co dziala
         }
     }
 
@@ -37,32 +46,41 @@ public class DFTCalculations {
         return absValue;
     }
 
-    public double[] calculateTwoHighestFrequencies(double frequencySize){
-        double frequencies[] = new double[] {0 , 0};
-        double firstHighestValue=0;
-        double secondHighestValue=0;
+    public double calculateHighestFrequency(double frequencySize){
+        double frequency = 0;
 
         for(int i=0; i<absValue.length/2; i++){
 
-            if(absValue[i] > firstHighestValue){
-                secondHighestValue=firstHighestValue;
-                frequencies[1]=frequencies[0];
-
-                firstHighestValue=absValue[i];
-                frequencies[0]=i*frequencySize;
-                continue;
-            }
-
-            if(absValue[i] > secondHighestValue){
-                secondHighestValue = absValue[i];
-                frequencies[1]=i*frequencySize;
+            if(absValue[i] > highestAccelerationAmplitude){
+                highestAccelerationAmplitude=absValue[i];
+                frequency=i*frequencySize;
             }
 
         }
-        frequencies[0] = roundDoubleValue(frequencies[0], 2);
-        frequencies[1] = roundDoubleValue(frequencies[1], 2);
-        return frequencies;
+
+        frequency = roundDoubleValue(frequency, 2);
+        calculateHighestAccelerationAmplitude(frequency);
+        return frequency;
     }
+
+    private void calculateHighestAccelerationAmplitude(double frequency){
+        highestDisplacementAmplitude = highestAccelerationAmplitude/Math.pow(2*Math.PI*frequency,2)*1000;
+    }
+
+    public double calculateHighestAccelerationInWindowTime(double[] accelerationValues){
+        double highestAccelerationValue=0;
+        for(int i=0; i<accelerationValues.length; i++){
+            if(accelerationValues[i]>highestAccelerationValue)
+                highestAccelerationValue=accelerationValues[i];
+        }
+
+        return roundDoubleValue(highestAccelerationValue, 2);
+    }
+
+    public double getNumberOfSamples(){
+        return absValue.length;
+    }
+
 
     private double roundDoubleValue(double value, int precise){
         long factor=0;

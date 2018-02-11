@@ -24,7 +24,7 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
             <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
@@ -48,41 +48,77 @@
                     android:layout_width="0dp"
                     android:layout_height="150dp"
                     android:layout_marginBottom="8dp"
-                    android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     android:layout_weight="1"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="@+id/accelerometer_graph"
-                    app:layout_constraintStart_toEndOf="@+id/first_freqency"
-                    app:layout_constraintTop_toBottomOf="@+id/accelerometer_graph" />
+                    app:layout_constraintHorizontal_bias="0.4"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/amount_of_samples"
+                    app:layout_constraintVertical_bias="0.023" />
 
                 <TextView
                     android:id="@+id/first_freqency"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
                     android:text="f1"
                     android:textColor="@android:color/black"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toTopOf="@+id/second_frequency"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/accelerometer_graph" />
+                    android:textSize="18dp"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/amplitude_for_frequency"
+                    app:layout_constraintStart_toStartOf="parent" />
 
                 <TextView
-                    android:id="@+id/second_frequency"
-                    android:layout_width="0dp"
+                    android:id="@+id/amplitude_for_frequency"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
-                    android:text="f2"
+                    android:text="A max"
                     android:textColor="@android:color/black"
-                    android:textSize="18sp"
+                    android:textSize="18dp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="@+id/first_freqency"
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/first_freqency"
+                    app:layout_constraintTop_toBottomOf="@+id/dtf_graph"
+                    app:layout_constraintVertical_bias="0.09" />
+
+                <TextView
+                    android:id="@+id/displacement_amplitude_for_frequency"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="X max"
+                    android:textColor="@android:color/black"
+                    android:textSize="18dp"
+                    app:layout_constraintStart_toStartOf="@+id/first_freqency"
                     app:layout_constraintTop_toBottomOf="@+id/first_freqency" />
+
+                <TextView
+                    android:id="@+id/max_acceleration_in_window_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="a max"
+                    android:textColor="@android:color/black"
+                    android:textSize="18dp"
+                    app:layout_constraintStart_toStartOf="@+id/amplitude_for_frequency"
+                    app:layout_constraintTop_toBottomOf="@+id/amplitude_for_frequency" />
+
+                <TextView
+                    android:id="@+id/amount_of_samples"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="N"
+                    android:textSize="20sp"
+                    android:textColor="@android:color/black"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/accelerometer_graph" />
 
             </android.support.constraint.ConstraintLayout>
 

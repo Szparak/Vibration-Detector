@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
@@ -18,7 +19,7 @@ import com.example.jakpe.vibrationdetector.implementations.MeasurementPresenterI
 import com.example.jakpe.vibrationdetector.implementations.MeasurementRepositoryImpl;
 import com.example.jakpe.vibrationdetector.interfaces.MeasurementContract;
 import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.LegendRenderer;
+import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
@@ -39,9 +40,15 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
     GraphView dftGraph;
     @BindView(R.id.first_freqency)
     TextView firstFrequencyTextView;
-    @BindView(R.id.second_frequency)
-    TextView secondFrequencyTextView;
-    private int windowTime=5;
+    @BindView(R.id.amplitude_for_frequency)
+    TextView maxFrequencyAmplitudeTextView;
+    @BindView(R.id.displacement_amplitude_for_frequency)
+    TextView displacementAmplitudeForMaxFrequencyAmplitudeTextView;
+    @BindView(R.id.max_acceleration_in_window_time)
+    TextView maxAccelerationInWindowTimeTextView;
+    @BindView(R.id.amount_of_samples)
+    TextView amountOfSamplesTextView;
+    private int windowTime=2;
     String axis;
     private double vectorTime;
     StringBuilder stringBuilder = new StringBuilder();
@@ -57,7 +64,10 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
         axis = data.getString("axis");
 
         stringBuilder.append("resultValue").append(axis);
-        System.out.println(stringBuilder.toString());
+
+        SharedPreferences settings = getSharedPreferences("info", 0);
+        String check = settings.getString("check", "");
+        System.out.println(check);
 
         initUi();
         setPresenter();
@@ -103,6 +113,11 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
         dftGraph.getViewport().setMinX(0);
         dftGraph.getViewport().setScalable(true);
         dftGraph.getViewport().setScalableY(true);
+        dftGraph.getGridLabelRenderer().setHorizontalLabelsColor(Color.WHITE);
+        dftGraph.getGridLabelRenderer().setVerticalLabelsColor(Color.WHITE);
+        dftGraph.getGridLabelRenderer().setGridColor(Color.WHITE);
+        dftGraph.getGridLabelRenderer().setHorizontalAxisTitle("f[Hz]");
+        dftGraph.getGridLabelRenderer().setVerticalAxisTitle("A[m]");
     }
 
 
@@ -207,9 +222,17 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
             if (resultCode == RESULT_OK) {
                 double absDftValues[] = intent.getDoubleArrayExtra("acceleration values");
                 double frequencySize = intent.getDoubleExtra("frequency size", 0 );
-                double twoFrequencies[] = intent.getDoubleArrayExtra("highest frequencies");
+                double frequency = intent.getDoubleExtra("highest frequency", 0);
+                double amplitudeForMaxFrequency = intent.getDoubleExtra("amplitudeForMaxFrequency", 0);
+                double displacementAmplitudeForMaxFrequency = intent.getDoubleExtra("displacementAmplitudeForMaxFrequency" ,0);
+                double maxAccelerationInWindowTime = intent.getDoubleExtra("maxAccelerationInWindowTime", 0);
+                double numberOfSamples = intent.getDoubleExtra("numberOfSamples", 0);
                 DataPoint[] dataPoints = new DataPoint[absDftValues.length];
-                showFrequencies(twoFrequencies);
+                setFrequency(frequency);
+                setMaxFrequencyAmplitude(amplitudeForMaxFrequency);
+                setDisplacementAmplitudeForMaxFrequency(displacementAmplitudeForMaxFrequency);
+                setMaxAccelerationInWindowTimeTextView(maxAccelerationInWindowTime);
+                setAmountOfSamplesTextView(numberOfSamples);
 
                 new Thread(() -> {
                     double xAxisPoint=0;
@@ -265,14 +288,30 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
 
     }
 
-    private void showFrequencies(double[] twoFrequencies){
-        String textF1 = "f1 = " + String.valueOf(twoFrequencies[0]) + "Hz";
-        String textF2 = "f2 = " + String.valueOf(twoFrequencies[1]) + "Hz";
+    private void setFrequency(double frequency){
+        String textF1 = "f1 = " + String.valueOf(frequency) + "Hz";
         firstFrequencyTextView.setText(textF1);
-        secondFrequencyTextView.setText(textF2);
     }
 
+    public void setMaxFrequencyAmplitude(double maxFrequencyAmplitude){
+        String textAmax = "Amax = " + String.valueOf(maxFrequencyAmplitude) + "m/s^2";
+        maxFrequencyAmplitudeTextView.setText(textAmax);
+    }
 
+    public void setDisplacementAmplitudeForMaxFrequency(double displacementAmplitudeForMaxFrequency){
+        String textXmax = "Xmax = " + String.valueOf(displacementAmplitudeForMaxFrequency) + "mm";
+        displacementAmplitudeForMaxFrequencyAmplitudeTextView.setText(textXmax);
+    }
+
+    public void setMaxAccelerationInWindowTimeTextView(double maxAccelerationInWindowTime){
+        String textAccelerationMax = "a_max = " + String.valueOf(maxAccelerationInWindowTime) + "m/s^2";
+        maxAccelerationInWindowTimeTextView.setText(textAccelerationMax);
+    }
+
+    public void setAmountOfSamplesTextView(double amountOfSamples){
+        String textAmountOfSamples = "N = " + String.valueOf(amountOfSamples);
+        amountOfSamplesTextView.setText(textAmountOfSamples);
+    }
 
 
     @Override

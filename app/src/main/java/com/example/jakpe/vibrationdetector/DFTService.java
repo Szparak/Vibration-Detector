@@ -14,6 +14,8 @@ public class DFTService extends IntentService {
 
     private double[] accelerationValuesInWindow;
     private double frequencySize;
+    private double amplitudeForMaxFrequency;
+    private double displacementAmplitudeForMaxFrequency;
     private double[] absDftValues;
     public static final String ACTION = "com.example.jakpe.vibrationdetector.DFTService";
 
@@ -26,18 +28,28 @@ public class DFTService extends IntentService {
         Intent broadcastIntent = new Intent(ACTION);
         accelerationValuesInWindow = intent.getDoubleArrayExtra("acceleration values");
         frequencySize = intent.getDoubleExtra("frequency size", 0 );
-        double twoHighestFrequencies[];
+        double highestFrequency;
+        double calculateHighestAccelerationInWindowTimeValue;
+        double numberOfSamples;
 
         DFTCalculations dftCalculation = new DFTCalculations();
         dftCalculation.calculateDFT(accelerationValuesInWindow);
         absDftValues = dftCalculation.calculateAndGetAbsValueOfDFT();
-        twoHighestFrequencies = dftCalculation.calculateTwoHighestFrequencies(frequencySize);
+        highestFrequency = dftCalculation.calculateHighestFrequency(frequencySize);
+        amplitudeForMaxFrequency = dftCalculation.getHighestAmplitude();
+        displacementAmplitudeForMaxFrequency = dftCalculation.getHighestDisplacementAmplitude();
+        calculateHighestAccelerationInWindowTimeValue = dftCalculation.calculateHighestAccelerationInWindowTime(accelerationValuesInWindow);
+        numberOfSamples = dftCalculation.getNumberOfSamples();
 
 
         broadcastIntent.putExtra("resultCode" , Activity.RESULT_OK);
         broadcastIntent.putExtra("frequency size", frequencySize);
         broadcastIntent.putExtra("acceleration values", absDftValues);
-        broadcastIntent.putExtra("highest frequencies" , twoHighestFrequencies);
+        broadcastIntent.putExtra("highest frequency" , highestFrequency);
+        broadcastIntent.putExtra("amplitudeForMaxFrequency", amplitudeForMaxFrequency);
+        broadcastIntent.putExtra("displacementAmplitudeForMaxFrequency" , displacementAmplitudeForMaxFrequency);
+        broadcastIntent.putExtra("maxAccelerationInWindowTime", calculateHighestAccelerationInWindowTimeValue);
+        broadcastIntent.putExtra("numberOfSamples", numberOfSamples);
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
 
     }

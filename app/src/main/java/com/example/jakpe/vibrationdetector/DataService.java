@@ -25,9 +25,9 @@ public class DataService extends IntentService implements SensorEventListener {
     double gravityX=0, gravityY=0, gravityZ=0;
     private SensorManager mSensorManager;
     private Sensor mSensor;
-    private final int samplingFrequency = 50;
+    private final int samplingInMilis = 20;
     long timeOnBeggining, timeOnEnd;
-    private int windowTimeinMilis;
+    private int windowTime;
     public static final String ACTION = "com.example.jakpe.vibrationdetector.DataService";
     private double[] accelerationValuesInWindow;
     private long readTime=0, readTemp=0;
@@ -48,14 +48,13 @@ public class DataService extends IntentService implements SensorEventListener {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
 
-        windowTimeinMilis = intent.getIntExtra("Window Time" , 0) * 1000;
+        windowTime = intent.getIntExtra("Window Time" , 0);
         axis = intent.getStringExtra("axis");
-        System.out.println("DataServiceAxis " + axis);
         String analysisMode = intent.getStringExtra("Analysis Mode");
 
         int iteration =0;
-        int samplingInMilis = 1000/samplingFrequency;
-        accelerationValuesInWindow = new double[windowTimeinMilis/samplingInMilis];
+        int samplingFrequency = 1000/samplingInMilis;
+        accelerationValuesInWindow = new double[windowTime*samplingFrequency];
         Intent broadcastIntent = new Intent(ACTION);
         broadcastIntent.putExtra("resultCode" , Activity.RESULT_OK);
         double frequencySize =(double) samplingFrequency / accelerationValuesInWindow.length ;

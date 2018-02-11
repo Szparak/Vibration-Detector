@@ -100,6 +100,8 @@ public class ChartsActivity extends AppCompatActivity {
         graph.getGridLabelRenderer().setHorizontalLabelsColor(Color.WHITE);
         graph.getGridLabelRenderer().setVerticalLabelsColor(Color.WHITE);
         graph.getGridLabelRenderer().setGridColor(Color.WHITE);
+        graph.getGridLabelRenderer().setVerticalAxisTitle("a[m/s^2]");
+        graph.getGridLabelRenderer().setHorizontalAxisTitle("t[s]");
 
 
 
@@ -107,17 +109,17 @@ public class ChartsActivity extends AppCompatActivity {
 
     private void addSeries(){
         xAxisAccSeries = new LineGraphSeries<>();
-        xAxisAccSeries.setTitle("X [m/s^2]");
+        xAxisAccSeries.setTitle("x");
         xAxisAccSeries.setColor(Color.BLUE);
         x_graph.addSeries(xAxisAccSeries);
 
         yAxisAccSeries = new LineGraphSeries<>();
-        yAxisAccSeries.setTitle("Y [m/s^2]");
+        yAxisAccSeries.setTitle("y");
         yAxisAccSeries.setColor(Color.RED);
         y_graph.addSeries(yAxisAccSeries);
 
         zAxisAccSeries = new LineGraphSeries<>();
-        zAxisAccSeries.setTitle("Z [m/s^2]");
+        zAxisAccSeries.setTitle("z");
         zAxisAccSeries.setColor(Color.GREEN);
         z_graph.addSeries(zAxisAccSeries);
     }

@@ -1,6 +1,7 @@
 package com.example.jakpe.vibrationdetector;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -33,6 +34,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        SharedPreferences settings = getSharedPreferences("info", 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("check","moj check");
+        editor.apply();
 
         initUi();
         initPresenter();
