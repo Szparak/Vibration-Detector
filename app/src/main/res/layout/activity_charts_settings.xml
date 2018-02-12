@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.jakpe.vibrationdetector.settings.ChartsSettingsActivity">
+
+    <EditText
+        android:id="@+id/chart_settings_sampling"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Sampling frequency(60Hz max)"
+        android:inputType="number"
+        android:textAlignment="center"
+        android:gravity="center"
+        tools:layout_editor_absoluteX="124dp"
+        tools:layout_editor_absoluteY="38dp" />
+
+    <EditText
+        android:id="@+id/chart_settings_window_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:ems="10"
+        android:gravity="center"
+        android:inputType="number"
+        android:hint="Analysis window time" />
+
+    <CheckBox
+        android:id="@+id/chart_settings_gravity_force"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Gravity force filter" />
+
+    <Button
+        android:id="@+id/chart_settings_save_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Save Settings" />
+</LinearLayout>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.jakpe.vibrationdetector.settings.AcquisitionSettingsActivity">
+
+    <EditText
+        android:id="@+id/acquisition_settings_filename"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:inputType="textPersonName"
+        android:hint="File name" />
+
+    <EditText
+        android:id="@+id/acquisition_settings_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:inputType="textMultiLine"
+        android:hint="Measurement description"/>
+
+    <EditText
+        android:id="@+id/acquisition_settings_sampling"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:hint="Sampling frequency"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/acquisition_settings_measurement_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:hint="Measurement time"
+        android:inputType="number" />
+
+    <Button
+        android:id="@+id/acquisition_save_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Save settings" />
+
+</LinearLayout>

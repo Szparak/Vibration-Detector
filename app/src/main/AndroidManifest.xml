@@ -34,8 +34,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-        <activity android:name=".NewMeasurement"></activity>
-        <activity android:name=".ChartsActivity"></activity>
+        <activity android:name=".NewMeasurement" />
+        <activity android:name=".ChartsActivity" />
+        <activity android:name=".settings.AcquisitionSettingsActivity" />
+        <activity android:name=".settings.ChartsSettingsActivity"/>
     </application>
 
 </manifest>

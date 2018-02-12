@@ -2,18 +2,16 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single"
-        android:id="@+id/xyz_axis_group">
-        <item android:id="@+id/x_axis"
-            android:orderInCategory="2"
-            android:title="@string/x_axis_string" />
-        <item android:id="@+id/y_axis"
-            android:orderInCategory="3"
-            android:title="@string/y_axis_string" />
-        <item android:id="@+id/z_axis"
-            android:orderInCategory="4"
-            android:title="@string/z_axis_string" />
-    </group>
+    <item android:orderInCategory="1"
+        android:id="@+id/charts_settings"
+        android:visible="true"
+        android:title="Charts Settings"/>
+
+    <item android:orderInCategory="1"
+        android:id="@+id/acquisition_settings"
+        android:visible="true"
+        android:title="Acquisition Settings"/>
+
 
     <item android:orderInCategory="1"
         android:title=" "

@@ -16,6 +16,8 @@ import android.widget.Toast;
 
 import com.example.jakpe.vibrationdetector.implementations.MainPresenterImpl;
 import com.example.jakpe.vibrationdetector.interfaces.MainContract;
+import com.example.jakpe.vibrationdetector.settings.AcquisitionSettings;
+import com.example.jakpe.vibrationdetector.settings.ChartsSettings;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,14 +37,33 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        SharedPreferences settings = getSharedPreferences("info", 0);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString("check","moj check");
-        editor.apply();
 
         initUi();
         initPresenter();
+        getSettingsFromSharedPreferencesAndSetChartsSettings();
+        getSettingsFromSharedPreferencesAndSetAcquisitionSettings();
+    }
 
+    private void getSettingsFromSharedPreferencesAndSetAcquisitionSettings() {
+
+        SharedPreferences settings = getSharedPreferences("AcquisitionSettings", 0);
+        AcquisitionSettings.setMeasurementTime(settings.getInt("measurementTimeValueInSeconds", 10));
+        AcquisitionSettings.setSamplingFrequency(settings.getInt("samplingValueInHz", 500));
+        AcquisitionSettings.setDescription("***No content***");
+        AcquisitionSettings.setFileName(settings.getString("fileNameValue", "measurement"));
+
+        System.out.println(AcquisitionSettings.getDescription());
+        System.out.println(AcquisitionSettings.getFileName());
+        System.out.println(AcquisitionSettings.getMeasurementTime());
+        System.out.println(AcquisitionSettings.getSamplingFrequency());
+    }
+
+    private void getSettingsFromSharedPreferencesAndSetChartsSettings(){
+
+        SharedPreferences settings = getSharedPreferences("ChartsSettings", 0);
+        ChartsSettings.setGravityForce(settings.getBoolean("gravityForceCheckboxState", false));
+        ChartsSettings.setWindowTimeValue(settings.getInt("windowTimeValueInSeconds", 5));
+        ChartsSettings.setSampligValue(settings.getInt("samplingValueInHz", 50));
     }
 
     private void initPresenter(){
@@ -104,4 +125,5 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
     public void onValidInput() {
         newMeasurementButton.setVisibility(View.VISIBLE);
     }
+
 }

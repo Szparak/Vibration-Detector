@@ -32,6 +32,7 @@ public class DataService extends IntentService implements SensorEventListener {
     private double[] accelerationValuesInWindow;
     private long readTime=0, readTemp=0;
     String axis;
+    long previousTime=0;
 
 
     public DataService() {
@@ -60,30 +61,31 @@ public class DataService extends IntentService implements SensorEventListener {
         double frequencySize =(double) samplingFrequency / accelerationValuesInWindow.length ;
 
         while(!isStopped){
-
-            try {
+            if(false){
+                try {
                     Thread.sleep((long) samplingInMilis -(timeOnEnd-timeOnBeggining));
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            timeOnBeggining = SystemClock.currentThreadTimeMillis();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                timeOnBeggining = SystemClock.currentThreadTimeMillis();
 
-            if(analysisMode!=null && analysisMode.equals("ON")){
-                if(iteration == accelerationValuesInWindow.length-1){
-                    new Thread(() -> startDFTService(accelerationValuesInWindow, frequencySize)).start();
-                    iteration=0;
+                if(analysisMode!=null && analysisMode.equals("ON")){
+                    if(iteration == accelerationValuesInWindow.length-1){
+                        new Thread(() -> startDFTService(accelerationValuesInWindow, frequencySize)).start();
+                        iteration=0;
+                    }
+
+                    putValueIntoAxisArray(axis, iteration);
+                    iteration++;
                 }
 
-                putValueIntoAxisArray(axis, iteration);
-                iteration++;
+                broadcastIntent.putExtra("resultValueX" , accelerationValueX);
+                broadcastIntent.putExtra("resultValueY" , accelerationValueY);
+                broadcastIntent.putExtra("resultValueZ" , accelerationValueZ);
+                LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
+
+                timeOnEnd = SystemClock.currentThreadTimeMillis();
             }
-
-            broadcastIntent.putExtra("resultValueX" , accelerationValueX);
-            broadcastIntent.putExtra("resultValueY" , accelerationValueY);
-            broadcastIntent.putExtra("resultValueZ" , accelerationValueZ);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
-
-            timeOnEnd = SystemClock.currentThreadTimeMillis();
         }
     }
 
@@ -126,15 +128,19 @@ public class DataService extends IntentService implements SensorEventListener {
         //póki co bez filtracji, w ustawieniach bedzie opcja wyboru?? moze...
 
 
-        final double alpha = 0.8;
-        gravityX = alpha * gravityX + (1 - alpha) * sensorEvent.values[0];
-        gravityY = alpha * gravityY + (1 - alpha) * sensorEvent.values[1];
-        gravityZ = alpha * gravityZ + (1 - alpha) * sensorEvent.values[2];
+//        final double alpha = 0.8;
+//        gravityX = alpha * gravityX + (1 - alpha) * sensorEvent.values[0];
+//        gravityY = alpha * gravityY + (1 - alpha) * sensorEvent.values[1];
+//        gravityZ = alpha * gravityZ + (1 - alpha) * sensorEvent.values[2];
+
+        long time = SystemClock.currentThreadTimeMillis();
 
         accelerationValueX=sensorEvent.values[0] - gravityX;
         accelerationValueY=sensorEvent.values[1] - gravityY;
         accelerationValueZ=sensorEvent.values[2] - gravityZ;
 
+        System.out.println(time-previousTime);
+        previousTime=time;
     }
 
     @Override

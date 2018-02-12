@@ -18,11 +18,15 @@ import android.widget.TextView;
 import com.example.jakpe.vibrationdetector.implementations.MeasurementPresenterImpl;
 import com.example.jakpe.vibrationdetector.implementations.MeasurementRepositoryImpl;
 import com.example.jakpe.vibrationdetector.interfaces.MeasurementContract;
+import com.example.jakpe.vibrationdetector.settings.AcquisitionSettingsActivity;
+import com.example.jakpe.vibrationdetector.settings.ChartsSettingsActivity;
 import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
+
+import java.util.Calendar;
+import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -48,6 +52,8 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
     TextView maxAccelerationInWindowTimeTextView;
     @BindView(R.id.amount_of_samples)
     TextView amountOfSamplesTextView;
+    @BindView(R.id.date_textView)
+    TextView dateTextView;
     private int windowTime=2;
     String axis;
     private double vectorTime;
@@ -64,7 +70,6 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
         axis = data.getString("axis");
 
         stringBuilder.append("resultValue").append(axis);
-
         SharedPreferences settings = getSharedPreferences("info", 0);
         String check = settings.getString("check", "");
         System.out.println(check);
@@ -90,9 +95,11 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
             ab.setDisplayHomeAsUpEnabled(true);
         }
 
+//        showDateTime();
         configureGraphs();
         addSeries();
     }
+
 
     private void addSeries(){
         axisAccSeries = new LineGraphSeries<>();
@@ -126,61 +133,25 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
     public boolean onCreateOptionsMenu(Menu menu) {
 
         getMenuInflater().inflate(R.menu.new_measurement_menu,menu);
-        menu.setGroupCheckable(R.id.xyz_axis_group, true, true);
-
-        MenuItem xAxis = menu.findItem(R.id.x_axis);
-        xAxis.setChecked(true);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-//        switch(item.getItemId()){
-//            case R.id.x_axis:
-//                if(!item.isChecked()){
-//                    item.setChecked(true);
-//                    DataService.isStopped = true;
-//                    try {
-//                        Thread.sleep(20);
-//                        vectorTime+=0.02;
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-////                    startDataService("X");
-//                }
-//                break;
-//            case R.id.y_axis:
-//                if(!item.isChecked()){
-//                    item.setChecked(true);
-//                    DataService.isStopped = true;
-//                    try {
-//                        Thread.sleep(20);
-//                        vectorTime+=0.02;
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-////                    startDataService("Y");
-//                }
-//                break;
-//            case R.id.z_axis:
-//                if(!item.isChecked()){
-//                    item.setChecked(true);
-//                    DataService.isStopped = true;
-//                    try {
-//                        Thread.sleep(20);
-//                        vectorTime+=0.02;
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-////                    startDataService("Z");
-//                }
-//                break;
-//            case R.id.save:
-//
-//
-//                break;
-//        }
+        int clickedItemID = item.getItemId();
+        switch(clickedItemID){
+            case R.id.charts_settings:
+                    Intent chartsSettingsIntent = new Intent(this, ChartsSettingsActivity.class);
+                    startActivity(chartsSettingsIntent);
+                break;
+            case R.id.acquisition_settings:
+                Intent acquisitionSettingsIntent = new Intent(this, AcquisitionSettingsActivity.class);
+                startActivity(acquisitionSettingsIntent);
+                break;
+        }
+
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -196,10 +167,17 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
 
     private BroadcastReceiver testReceiver = new BroadcastReceiver() {
         DataPoint dataPoint;
-
+        Date previousDate;
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            Date date = Calendar.getInstance().getTime();
+
+            if(!date.equals(previousDate)){
+                dateTextView.setText(date.toString());
+                previousDate=date;
+            }
+
 
             int resultCode = intent.getIntExtra("resultCode", RESULT_CANCELED);
             if (resultCode == RESULT_OK) {
@@ -233,6 +211,7 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
                 setDisplacementAmplitudeForMaxFrequency(displacementAmplitudeForMaxFrequency);
                 setMaxAccelerationInWindowTimeTextView(maxAccelerationInWindowTime);
                 setAmountOfSamplesTextView(numberOfSamples);
+
 
                 new Thread(() -> {
                     double xAxisPoint=0;
