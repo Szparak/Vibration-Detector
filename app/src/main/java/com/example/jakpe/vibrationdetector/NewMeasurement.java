@@ -13,12 +13,16 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.jakpe.vibrationdetector.implementations.MeasurementPresenterImpl;
 import com.example.jakpe.vibrationdetector.implementations.MeasurementRepositoryImpl;
 import com.example.jakpe.vibrationdetector.interfaces.MeasurementContract;
+import com.example.jakpe.vibrationdetector.settings.AcquisitionSettings;
 import com.example.jakpe.vibrationdetector.settings.AcquisitionSettingsActivity;
+import com.example.jakpe.vibrationdetector.settings.ChartsSettings;
 import com.example.jakpe.vibrationdetector.settings.ChartsSettingsActivity;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.BarGraphSeries;
@@ -54,10 +58,12 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
     TextView amountOfSamplesTextView;
     @BindView(R.id.date_textView)
     TextView dateTextView;
-    private int windowTime=2;
+    @BindView(R.id.acquisition_progress_bar)
+    ProgressBar acquisitionProgressBar;
     String axis;
     private double vectorTime;
     StringBuilder stringBuilder = new StringBuilder();
+    double samplingFrequency;
 
 
     @Override
@@ -66,6 +72,7 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
         setContentView(R.layout.activity_new_measurement);
         ButterKnife.bind(this);
 
+        vectorTime=0.02;
         Bundle data = getIntent().getExtras();
         axis = data.getString("axis");
 
@@ -85,7 +92,6 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
     }
 
     private void initUi(){
-        vectorTime=0;
 
         setSupportActionBar(myToolbar);
         ActionBar ab = getSupportActionBar();
@@ -95,7 +101,7 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
             ab.setDisplayHomeAsUpEnabled(true);
         }
 
-//        showDateTime();
+        acquisitionProgressBar.setVisibility(View.INVISIBLE);
         configureGraphs();
         addSeries();
     }
@@ -149,6 +155,17 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
                 Intent acquisitionSettingsIntent = new Intent(this, AcquisitionSettingsActivity.class);
                 startActivity(acquisitionSettingsIntent);
                 break;
+            case R.id.save:
+                acquisitionProgressBar.setMax(AcquisitionSettings.getMeasurementTime()*AcquisitionSettings.getSamplingFrequency());
+                acquisitionProgressBar.setVisibility(View.VISIBLE);
+                DataService.writingMode = true;
+                DataService.isStopped = true;
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                updateProgressbar();
         }
 
 
@@ -157,10 +174,31 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
 
 
 
+    private void updateProgressbar(){
+
+        new Thread(() -> {
+            acquisitionProgressBar.setProgress(0);
+            for(int i=0; i<AcquisitionSettings.getSamplingFrequency()*AcquisitionSettings.getMeasurementTime(); i++){
+                acquisitionProgressBar.incrementProgressBy(1);
+                try {
+                    Thread.sleep(1000/AcquisitionSettings.getSamplingFrequency());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            startDataService();
+        }).start();
+
+    }
+
     private void startDataService(){
         mySensorIntent = new Intent(this, DataService.class);
         mySensorIntent.putExtra("axis" ,  axis);
-        mySensorIntent.putExtra("Window Time" , windowTime);
         mySensorIntent.putExtra("Analysis Mode", "ON");
         startService(mySensorIntent);
     }
@@ -172,6 +210,7 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
         @Override
         public void onReceive(Context context, Intent intent) {
             Date date = Calendar.getInstance().getTime();
+
 
             if(!date.equals(previousDate)){
                 dateTextView.setText(date.toString());
@@ -187,8 +226,8 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
                     appendData(dataPoint);
 
                 }
-                vectorTime+=0.02;
-
+                vectorTime+=(1/samplingFrequency);
+//            System.out.println(1/samplingFrequency);
             }
 
     };
@@ -230,6 +269,8 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
     protected void onResume() {
         super.onResume();
 
+        samplingFrequency = ChartsSettings.getSampligValue();
+
         IntentFilter filter = new IntentFilter(DataService.ACTION);
         IntentFilter dftFilter = new IntentFilter(DFTService.ACTION);
 
@@ -244,7 +285,7 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
         super.onPause();
         DataService.isStopped = true;
         try {
-            Thread.sleep(20);
+            Thread.sleep(50);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -48,14 +48,14 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
 
         SharedPreferences settings = getSharedPreferences("AcquisitionSettings", 0);
         AcquisitionSettings.setMeasurementTime(settings.getInt("measurementTimeValueInSeconds", 10));
-        AcquisitionSettings.setSamplingFrequency(settings.getInt("samplingValueInHz", 500));
+        AcquisitionSettings.setSamplingFrequency(settings.getInt("samplingValueInHz", 100));
         AcquisitionSettings.setDescription("***No content***");
         AcquisitionSettings.setFileName(settings.getString("fileNameValue", "measurement"));
 
-        System.out.println(AcquisitionSettings.getDescription());
-        System.out.println(AcquisitionSettings.getFileName());
-        System.out.println(AcquisitionSettings.getMeasurementTime());
-        System.out.println(AcquisitionSettings.getSamplingFrequency());
+//        System.out.println(AcquisitionSettings.getDescription());
+//        System.out.println(AcquisitionSettings.getFileName());
+//        System.out.println(AcquisitionSettings.getMeasurementTime());
+//        System.out.println(AcquisitionSettings.getSamplingFrequency());
     }
 
     private void getSettingsFromSharedPreferencesAndSetChartsSettings(){

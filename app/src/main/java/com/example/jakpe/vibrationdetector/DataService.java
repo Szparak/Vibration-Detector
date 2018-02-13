@@ -13,6 +13,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
 
+import com.example.jakpe.vibrationdetector.settings.AcquisitionSettings;
+import com.example.jakpe.vibrationdetector.settings.ChartsSettings;
+
 /**
  * Created by pernal on 09.12.17.
  */
@@ -22,17 +25,26 @@ public class DataService extends IntentService implements SensorEventListener {
     private double accelerationValueX=0;
     private double accelerationValueY=0;
     private double accelerationValueZ=0;
-    double gravityX=0, gravityY=0, gravityZ=0;
+    double gravityX, gravityY, gravityZ;
     private SensorManager mSensorManager;
     private Sensor mSensor;
-    private final int samplingInMilis = 20;
     long timeOnBeggining, timeOnEnd;
-    private int windowTime;
     public static final String ACTION = "com.example.jakpe.vibrationdetector.DataService";
     private double[] accelerationValuesInWindow;
     private long readTime=0, readTemp=0;
     String axis;
     long previousTime=0;
+    private int acquisitionSamplingFreq;
+    private int measurementTime;
+    private int samplingFrequency;
+    private int analysisWindowTime;
+    long samplingInMillis;
+    boolean gravityForceFilter;
+    final double alpha = 0.8;
+    public static boolean writingMode;
+    private double[] acquisitionXTable;
+    private double[] acquisitionYTable;
+    private double[] acquisitionZTable;
 
 
     public DataService() {
@@ -43,31 +55,42 @@ public class DataService extends IntentService implements SensorEventListener {
     public void onCreate() {
         super.onCreate();
         isStopped = false;
+        writingMode = false;
         setupSensor();
+        gravityX=0;
+        gravityY=0;
+        gravityZ=0;
+        acquisitionSamplingFreq = AcquisitionSettings.getSamplingFrequency(); //do podpiecia
+        measurementTime = AcquisitionSettings.getMeasurementTime(); //do podpiecia
+        samplingFrequency = ChartsSettings.getSampligValue();
+        analysisWindowTime = ChartsSettings.getWindowTimeValue();
+        gravityForceFilter = ChartsSettings.getGravityForce();
+        samplingInMillis = 1000/samplingFrequency;
+        acquisitionXTable=new double[measurementTime*acquisitionSamplingFreq];
+        acquisitionYTable=new double[measurementTime*acquisitionSamplingFreq];
+        acquisitionZTable=new double[measurementTime*acquisitionSamplingFreq];
     }
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
 
-        windowTime = intent.getIntExtra("Window Time" , 0);
-        axis = intent.getStringExtra("axis");
-        String analysisMode = intent.getStringExtra("Analysis Mode");
+        if(!writingMode){
+            axis = intent.getStringExtra("axis");
+            String analysisMode = intent.getStringExtra("Analysis Mode");
 
-        int iteration =0;
-        int samplingFrequency = 1000/samplingInMilis;
-        accelerationValuesInWindow = new double[windowTime*samplingFrequency];
-        Intent broadcastIntent = new Intent(ACTION);
-        broadcastIntent.putExtra("resultCode" , Activity.RESULT_OK);
-        double frequencySize =(double) samplingFrequency / accelerationValuesInWindow.length ;
+            int iteration =0;
+            accelerationValuesInWindow = new double[analysisWindowTime*samplingFrequency];
+            Intent broadcastIntent = new Intent(ACTION);
+            broadcastIntent.putExtra("resultCode" , Activity.RESULT_OK);
+            double frequencySize =(double) samplingFrequency / accelerationValuesInWindow.length ;
 
-        while(!isStopped){
-            if(false){
+            while(!isStopped){
+
                 try {
-                    Thread.sleep((long) samplingInMilis -(timeOnEnd-timeOnBeggining));
+                    Thread.sleep(samplingInMillis);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                timeOnBeggining = SystemClock.currentThreadTimeMillis();
 
                 if(analysisMode!=null && analysisMode.equals("ON")){
                     if(iteration == accelerationValuesInWindow.length-1){
@@ -83,10 +106,30 @@ public class DataService extends IntentService implements SensorEventListener {
                 broadcastIntent.putExtra("resultValueY" , accelerationValueY);
                 broadcastIntent.putExtra("resultValueZ" , accelerationValueZ);
                 LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
-
-                timeOnEnd = SystemClock.currentThreadTimeMillis();
             }
         }
+        if(writingMode){
+
+
+            gravityX=0;
+            gravityY=0;
+            gravityZ=0;
+
+            for(int i=0; i<acquisitionXTable.length; i++){
+                acquisitionXTable[i]=accelerationValueX;
+                acquisitionYTable[i]=accelerationValueY;
+                acquisitionZTable[i]=accelerationValueZ;
+                try {
+                    Thread.sleep(1000/acquisitionSamplingFreq);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            //metoda zapisująca do pliku
+            writingMode=false;
+        }
+
     }
 
     private void startDFTService(double[] valuesArray, double frequencySize){
@@ -128,19 +171,20 @@ public class DataService extends IntentService implements SensorEventListener {
         //póki co bez filtracji, w ustawieniach bedzie opcja wyboru?? moze...
 
 
-//        final double alpha = 0.8;
-//        gravityX = alpha * gravityX + (1 - alpha) * sensorEvent.values[0];
-//        gravityY = alpha * gravityY + (1 - alpha) * sensorEvent.values[1];
-//        gravityZ = alpha * gravityZ + (1 - alpha) * sensorEvent.values[2];
+        if(gravityForceFilter && !writingMode){
+            gravityX = alpha * gravityX + (1 - alpha) * sensorEvent.values[0];
+            gravityY = alpha * gravityY + (1 - alpha) * sensorEvent.values[1];
+            gravityZ = alpha * gravityZ + (1 - alpha) * sensorEvent.values[2];
+        }
 
-        long time = SystemClock.currentThreadTimeMillis();
+//        long time = SystemClock.currentThreadTimeMillis();
 
         accelerationValueX=sensorEvent.values[0] - gravityX;
         accelerationValueY=sensorEvent.values[1] - gravityY;
         accelerationValueZ=sensorEvent.values[2] - gravityZ;
 
-        System.out.println(time-previousTime);
-        previousTime=time;
+//        System.out.println(time-previousTime);
+//        previousTime=time;
     }
 
     @Override

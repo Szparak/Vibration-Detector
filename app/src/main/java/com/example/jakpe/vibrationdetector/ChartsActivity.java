@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.widget.Button;
 
+import com.example.jakpe.vibrationdetector.settings.ChartsSettings;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.LegendRenderer;
 import com.jjoe64.graphview.series.DataPoint;
@@ -44,6 +45,8 @@ public class ChartsActivity extends AppCompatActivity {
     Button z_analysis;
 
     private LineGraphSeries<DataPoint> xAxisAccSeries, yAxisAccSeries, zAxisAccSeries;
+    double samplingFrequency;
+    double vectorTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +54,7 @@ public class ChartsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_charts);
         ButterKnife.bind(this);
 
+        vectorTime=0.02;
         initUi();
     }
 
@@ -127,7 +131,7 @@ public class ChartsActivity extends AppCompatActivity {
 
     private BroadcastReceiver valuesReceiver = new BroadcastReceiver() {
         DataPoint xDataPoint, yDataPoint, zDataPoint;
-        double vectorTime=0.02;
+
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -145,8 +149,8 @@ public class ChartsActivity extends AppCompatActivity {
                 appendData(zDataPoint, zAxisAccSeries);
 
 
-                vectorTime+=0.02;
-
+                vectorTime+=(1/samplingFrequency);
+//                System.out.println(1/samplingFrequency);
             }
         }
     };
@@ -158,7 +162,7 @@ public class ChartsActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
+        samplingFrequency = ChartsSettings.getSampligValue();
         IntentFilter filter = new IntentFilter(DataService.ACTION);
         LocalBroadcastManager.getInstance(this).registerReceiver(valuesReceiver, filter);
         startDataService();
@@ -168,6 +172,11 @@ public class ChartsActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         DataService.isStopped = true;
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         LocalBroadcastManager.getInstance(this).unregisterReceiver(valuesReceiver);
     }
 

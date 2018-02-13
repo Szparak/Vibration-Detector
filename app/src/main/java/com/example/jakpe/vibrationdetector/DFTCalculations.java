@@ -64,7 +64,10 @@ public class DFTCalculations {
     }
 
     private void calculateHighestAccelerationAmplitude(double frequency){
-        highestDisplacementAmplitude = highestAccelerationAmplitude/Math.pow(2*Math.PI*frequency,2)*1000;
+        if(frequency!=0)
+            highestDisplacementAmplitude = highestAccelerationAmplitude/Math.pow(2*Math.PI*frequency,2)*1000;
+        else
+            highestDisplacementAmplitude = 0;
     }
 
     public double calculateHighestAccelerationInWindowTime(double[] accelerationValues){
