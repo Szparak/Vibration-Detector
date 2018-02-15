@@ -52,10 +52,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
         AcquisitionSettings.setDescription("***No content***");
         AcquisitionSettings.setFileName(settings.getString("fileNameValue", "measurement"));
 
-//        System.out.println(AcquisitionSettings.getDescription());
-//        System.out.println(AcquisitionSettings.getFileName());
-//        System.out.println(AcquisitionSettings.getMeasurementTime());
-//        System.out.println(AcquisitionSettings.getSamplingFrequency());
     }
 
     private void getSettingsFromSharedPreferencesAndSetChartsSettings(){

@@ -167,11 +167,6 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
                 acquisitionProgressBar.setVisibility(View.VISIBLE);
                 DataService.writingMode = true;
                 DataService.isStopped = true;
-//                try {
-//                    Thread.sleep(100);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
                 FileSaver.measurementStartDate = Calendar.getInstance().getTime();
                 AcquisitionSettings.fileCounter++;
                 updateProgressbar();
@@ -236,7 +231,6 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
 
                 }
                 vectorTime+=(1/samplingFrequency);
-//            System.out.println(1/samplingFrequency);
             }
 
     };

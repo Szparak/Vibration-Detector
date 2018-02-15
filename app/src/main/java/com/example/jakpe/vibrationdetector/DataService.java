@@ -30,12 +30,9 @@ public class DataService extends IntentService implements SensorEventListener {
     double gravityX, gravityY, gravityZ;
     private SensorManager mSensorManager;
     private Sensor mSensor;
-    long timeOnBeggining, timeOnEnd;
     public static final String ACTION = "com.example.jakpe.vibrationdetector.DataService";
     private double[] accelerationValuesInWindow;
-    private long readTime=0, readTemp=0;
     String axis;
-    long previousTime=0;
     private int acquisitionSamplingFreq;
     private int measurementTime;
     private int samplingFrequency;
@@ -187,14 +184,9 @@ public class DataService extends IntentService implements SensorEventListener {
             gravityZ = alpha * gravityZ + (1 - alpha) * sensorEvent.values[2];
         }
 
-//        long time = SystemClock.currentThreadTimeMillis();
-
         accelerationValueX=sensorEvent.values[0] - gravityX;
         accelerationValueY=sensorEvent.values[1] - gravityY;
         accelerationValueZ=sensorEvent.values[2] - gravityZ;
-
-//        System.out.println(time-previousTime);
-//        previousTime=time;
     }
 
     @Override

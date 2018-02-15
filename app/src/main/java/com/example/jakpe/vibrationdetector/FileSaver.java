@@ -13,11 +13,9 @@ import com.jaredrummler.android.device.DeviceName;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
+
 
 /**
  * Created by Pernal on 2/15/2018.
@@ -34,11 +32,9 @@ public class FileSaver {
     };
 
     public static void verifyStoragePermissions(Activity activity) {
-        // Check if we have write permission
         int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
         if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
             ActivityCompat.requestPermissions(
                     activity,
                     PERMISSIONS_STORAGE,
@@ -69,22 +65,15 @@ public class FileSaver {
         String line;
         String deviceName = "#Device name: " + DeviceName.getDeviceName() + "\n";
 
-
         String dir = Environment.getExternalStorageDirectory()+File.separator+"VibrationDetectorMeasurements";
 
         File folder = new File(dir);
         folder.mkdirs();
 
-
         File file = new File(dir, fileName);
         file.createNewFile();
 
-
-
         FileOutputStream fos = new FileOutputStream(file);
-
-
-
 
         String header = "         x[m/s^2]          " + "       y[m/s^2]         " + "         z[m/s^2]";
         String accParameters = "#Accelerometer vendor: " + accVendor + "\n" + "#Accelerometer name: " + accName + "\n"  + "#Accelerometer resolution: " +
