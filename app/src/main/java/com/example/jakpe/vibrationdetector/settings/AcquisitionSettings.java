@@ -10,6 +10,7 @@ public class AcquisitionSettings {
     private static String description;
     private static int samplingFrequency;
     private static int measurementTime;
+    public static int fileCounter;
 
     public static String getFileName() {
         return fileName;
@@ -17,6 +18,7 @@ public class AcquisitionSettings {
 
     public static void setFileName(String fileName) {
         AcquisitionSettings.fileName = fileName;
+        fileCounter=0;
     }
 
     public static String getDescription() {

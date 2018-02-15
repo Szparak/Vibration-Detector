@@ -11,7 +11,7 @@
     <string name="enter_parameters">Enter parameters</string>
     <string name="file_name">File name</string>
     <string name="new_measurement">Show Charts</string>
-    <string name="vibration_detector_ver_beta">Vibration Detector ver: beta</string>
+    <string name="vibration_detector_ver_beta">Vibration Detector ver. 1.3</string>
     <string name="window_label">Enter measurement window time</string>
     <string name="title_activity_new_measurement">NewMeasurement</string>
     <string name="z_axis_string">Z axis</string>

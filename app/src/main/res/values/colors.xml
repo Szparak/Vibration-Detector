@@ -9,4 +9,5 @@
     <color name="buttonXColor">#42A5F5</color>
     <color name="buttonYColor">#EF5350</color>
     <color name="buttonZColor">#66BB6A</color>
+    <color name="axisAndValuesColor">#5E35B1</color>
 </resources>

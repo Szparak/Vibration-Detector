@@ -477,7 +477,7 @@ public class NowyPomiar extends AppCompatActivity implements SensorEventListener
         String drugaLinia = "         x[mm]          " + "       t[s]         ";
         accString = "#Accelerometer vendor: " + accVendor + "\n" + "#Accelerometer name: " + accName + "\n"  + "#Accelerometer resolution: " +
                     Float.toString(accResolution) + " m/s^2" + "\n" + "#Accelerometer maximum range: " + Float.toString(accRange) + " m/s^2" +
-                    "\n" + "#Accelerometer min delay: " + Float.toString(accMinDelay)+ " µm" + "\n\n\n";
+                    "\n" + "#Accelerometer min delay: " + Float.toString(accMinDelay)+ " µs" + "\n\n\n";
         fos.write(nazwaPliku.getBytes());
         fos.write(opisPomiaru.getBytes());
         fos.write(poczatek.getBytes());

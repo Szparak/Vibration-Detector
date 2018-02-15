@@ -75,6 +75,7 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
         vectorTime=0.02;
         Bundle data = getIntent().getExtras();
         axis = data.getString("axis");
+        FileSaver.verifyStoragePermissions(this);
 
         stringBuilder.append("resultValue").append(axis);
         SharedPreferences settings = getSharedPreferences("info", 0);
@@ -122,6 +123,10 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
         accelerometerGraph.getGridLabelRenderer().setHorizontalLabelsColor(Color.WHITE);
         accelerometerGraph.getGridLabelRenderer().setVerticalLabelsColor(Color.WHITE);
         accelerometerGraph.getGridLabelRenderer().setGridColor(Color.WHITE);
+        accelerometerGraph.getGridLabelRenderer().setHorizontalAxisTitleColor(Color.rgb(0,128,255));
+        accelerometerGraph.getGridLabelRenderer().setVerticalAxisTitleColor(Color.rgb(0,128,255));
+        accelerometerGraph.getGridLabelRenderer().setHorizontalAxisTitle("t[s]");
+        accelerometerGraph.getGridLabelRenderer().setVerticalAxisTitle("a[m/s^2]");
 
         dftGraph.getViewport().setMinX(0);
         dftGraph.getViewport().setScalable(true);
@@ -131,6 +136,8 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
         dftGraph.getGridLabelRenderer().setGridColor(Color.WHITE);
         dftGraph.getGridLabelRenderer().setHorizontalAxisTitle("f[Hz]");
         dftGraph.getGridLabelRenderer().setVerticalAxisTitle("A[m]");
+        dftGraph.getGridLabelRenderer().setHorizontalAxisTitleColor(Color.rgb(0,128,255));
+        dftGraph.getGridLabelRenderer().setVerticalAxisTitleColor(Color.rgb(0,128,255));
     }
 
 
@@ -160,11 +167,13 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
                 acquisitionProgressBar.setVisibility(View.VISIBLE);
                 DataService.writingMode = true;
                 DataService.isStopped = true;
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    Thread.sleep(100);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+                FileSaver.measurementStartDate = Calendar.getInstance().getTime();
+                AcquisitionSettings.fileCounter++;
                 updateProgressbar();
         }
 
@@ -304,6 +313,7 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
         dftGraph.removeAllSeries();
 
         BarGraphSeries<DataPoint> dftSeries = new BarGraphSeries<>(dataPoints);
+        dftSeries.setColor(Color.RED);
         dftGraph.addSeries(dftSeries);
 
     }

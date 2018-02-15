@@ -106,6 +106,8 @@ public class ChartsActivity extends AppCompatActivity {
         graph.getGridLabelRenderer().setGridColor(Color.WHITE);
         graph.getGridLabelRenderer().setVerticalAxisTitle("a[m/s^2]");
         graph.getGridLabelRenderer().setHorizontalAxisTitle("t[s]");
+        graph.getGridLabelRenderer().setHorizontalAxisTitleColor(Color.rgb(0,128,255));
+        graph.getGridLabelRenderer().setVerticalAxisTitleColor(Color.rgb(0,128,255));
 
 
 

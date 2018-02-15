@@ -16,6 +16,8 @@ import android.widget.Toast;
 import com.example.jakpe.vibrationdetector.settings.AcquisitionSettings;
 import com.example.jakpe.vibrationdetector.settings.ChartsSettings;
 
+import java.io.IOException;
+
 /**
  * Created by pernal on 09.12.17.
  */
@@ -116,18 +118,26 @@ public class DataService extends IntentService implements SensorEventListener {
             gravityZ=0;
 
             for(int i=0; i<acquisitionXTable.length; i++){
+
                 acquisitionXTable[i]=accelerationValueX;
                 acquisitionYTable[i]=accelerationValueY;
                 acquisitionZTable[i]=accelerationValueZ;
+
                 try {
                     Thread.sleep(1000/acquisitionSamplingFreq);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-
-            //metoda zapisująca do pliku
             writingMode=false;
+
+            new Thread(() -> {
+                try {
+                    FileSaver.saveData(acquisitionXTable, acquisitionYTable, acquisitionZTable);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }).start();
         }
 
     }
@@ -157,6 +167,7 @@ public class DataService extends IntentService implements SensorEventListener {
         // Use the accelerometer.
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
             mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            FileSaver.sensor = mSensor;
         }
         else{
             Toast.makeText(this, "no accelerometer on phone" , Toast.LENGTH_SHORT).show();
@@ -168,7 +179,6 @@ public class DataService extends IntentService implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        //póki co bez filtracji, w ustawieniach bedzie opcja wyboru?? moze...
 
 
         if(gravityForceFilter && !writingMode){

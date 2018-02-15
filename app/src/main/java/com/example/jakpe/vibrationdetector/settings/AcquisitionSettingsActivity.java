@@ -45,6 +45,7 @@ public class AcquisitionSettingsActivity extends AppCompatActivity {
             putFileNameValueIntoSharedPreferencesAndConfigFile();
             putDescriptionValueIntoSharedPreferencesAndConfigFile();
             putMeasurementTimeValueIntoSharedPreferencesAndConfigFile();
+
             editor.apply();
 
 
