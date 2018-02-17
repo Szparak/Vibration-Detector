@@ -110,7 +110,6 @@ public class DataService extends IntentService implements SensorEventListener {
         }
         if(writingMode){
 
-
             gravityX=0;
             gravityY=0;
             gravityZ=0;

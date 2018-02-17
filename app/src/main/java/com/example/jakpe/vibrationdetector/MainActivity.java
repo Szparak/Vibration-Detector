@@ -24,8 +24,11 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
 
-    @BindView(R.id.my_toolbar) Toolbar mainToolbar ;
-    @BindView(R.id.new_measurement_button) Button newMeasurementButton;
+    @BindView(R.id.my_toolbar)
+    Toolbar mainToolbar ;
+
+    @BindView(R.id.show_charts_button)
+    Button showChartsButton;
 
 
     @Override
@@ -98,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        newMeasurementButton.setOnClickListener(v -> startNewMeasurementActivity());
+        showChartsButton.setOnClickListener(v -> startNewMeasurementActivity());
 
     }
 

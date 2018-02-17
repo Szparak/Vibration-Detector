@@ -32,8 +32,8 @@ public class DFTCalculations {
                 sumReal +=  inreal[t] * Math.cos(angle);
                 sumImag += -inreal[t] * Math.sin(angle);
             }
-            outReal[k] = sumReal/(n*0.4);
-            outImag[k] = sumImag/(n*0.4); //zrobione na pałe, do zmiany xD póki co dziala
+            outReal[k] = sumReal/(0.4*n);
+            outImag[k] = sumImag/(0.4*n);
         }
     }
 
@@ -59,11 +59,11 @@ public class DFTCalculations {
         }
 
         frequency = roundDoubleValue(frequency, 2);
-        calculateHighestAccelerationAmplitude(frequency);
+        calculateHighestDisplacementAmplitude(frequency);
         return frequency;
     }
 
-    private void calculateHighestAccelerationAmplitude(double frequency){
+    private void calculateHighestDisplacementAmplitude(double frequency){
         if(frequency!=0)
             highestDisplacementAmplitude = highestAccelerationAmplitude/Math.pow(2*Math.PI*frequency,2)*1000;
         else

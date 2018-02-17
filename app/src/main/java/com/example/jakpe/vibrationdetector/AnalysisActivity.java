@@ -35,7 +35,7 @@ import java.util.Date;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class NewMeasurement extends AppCompatActivity{
+public class AnalysisActivity extends AppCompatActivity{
 
     private LineGraphSeries<DataPoint> axisAccSeries;
     Intent mySensorIntent;
@@ -158,6 +158,11 @@ public class NewMeasurement extends AppCompatActivity{
                 startActivity(acquisitionSettingsIntent);
                 break;
             case R.id.save:
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 acquisitionProgressBar.setMax(AcquisitionSettings.getMeasurementTime()*AcquisitionSettings.getSamplingFrequency());
                 acquisitionProgressBar.setVisibility(View.VISIBLE);
                 DataService.writingMode = true;
@@ -194,7 +199,6 @@ public class NewMeasurement extends AppCompatActivity{
             }
             startDataService();
         }).start();
-
     }
 
     private void startDataService(){

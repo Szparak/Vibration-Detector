@@ -121,7 +121,7 @@ public class ChartsActivity extends AppCompatActivity {
 
 
     private void startAnalysisActivity(String axis){
-        Intent analysisActivity = new Intent(this, NewMeasurement.class);
+        Intent analysisActivity = new Intent(this, AnalysisActivity.class);
         analysisActivity.putExtra("axis", axis);
         startActivity(analysisActivity);
     }
@@ -130,8 +130,8 @@ public class ChartsActivity extends AppCompatActivity {
         graph.getViewport().setXAxisBoundsManual(true);
         graph.getViewport().setMinX(0);
         graph.getViewport().setMaxX(2);
-        graph.getViewport().setScalable(true); // enables horizontal zooming and scrolling
-        graph.getViewport().setScalableY(true); // enables vertical zooming and scrolling
+        graph.getViewport().setScalable(true);
+        graph.getViewport().setScalableY(true);
         graph.getLegendRenderer().setVisible(true);
         graph.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
         graph.getGridLabelRenderer().setHorizontalLabelsColor(Color.WHITE);

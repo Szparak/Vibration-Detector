@@ -65,7 +65,8 @@ public class FileSaver {
         String line;
         String deviceName = "#Device name: " + DeviceName.getDeviceName() + "\n";
 
-        String dir = Environment.getExternalStorageDirectory()+File.separator+"VibrationDetectorMeasurements";
+        String dir = Environment.getExternalStorageDirectory()+File.separator+"" +
+                "VibrationDetectorMeasurements";
 
         File folder = new File(dir);
         folder.mkdirs();
@@ -75,10 +76,19 @@ public class FileSaver {
 
         FileOutputStream fos = new FileOutputStream(file);
 
-        String header = "         x[m/s^2]          " + "       y[m/s^2]         " + "         z[m/s^2]";
-        String accParameters = "#Accelerometer vendor: " + accVendor + "\n" + "#Accelerometer name: " + accName + "\n"  + "#Accelerometer resolution: " +
-                Float.toString(accResolution) + " m/s^2" + "\n" + "#Accelerometer maximum range: " + Float.toString(accRange) + " m/s^2" +
-                "\n" + "#Accelerometer min delay: " + Integer.toString(accMinDelay)+ " µs" + "\n\n\n";
+        String header = "           x[m/s^2]            "
+                + "         y[m/s^2]           "
+                + "           z[m/s^2]\n";
+
+        String accParameters = "#Accelerometer vendor: " + accVendor + "\n" + "#Accelerometer name: " +
+                accName + "\n"  + "#Accelerometer resolution: " +
+                Float.toString(accResolution) + " m/s^2" + "\n" +
+                "#Accelerometer maximum range: " +
+                Float.toString(accRange) + " m/s^2" +
+                "\n" + "#Accelerometer min delay: " + Integer.toString(accMinDelay)+
+                " µs" +
+                "\n\n\n";
+
         fos.write(fileNameString.getBytes());
         fos.write(measurementDescription.getBytes());
         fos.write(measurementStartTime.getBytes());

@@ -28,8 +28,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".NewMeasurement" />
-        <activity android:name=".ChartsActivity" />
+        <activity android:name=".AnalysisActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ChartsActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
         <activity android:name=".settings.AcquisitionSettingsActivity" />
         <activity android:name=".settings.ChartsSettingsActivity" />
     </application>

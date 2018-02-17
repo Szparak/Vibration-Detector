@@ -40,12 +40,16 @@ public class ChartsSettingsActivity extends AppCompatActivity {
         checkAndSetGravityState();
 
         saveChartsSettingsButton.setOnClickListener(v -> {
+            if(!samplingValue.getText().toString().equals(""))
                 putSamplingValueIntoSharedPreferencesAndConfigFile();
-                putWindowTimeValueIntoSharedPreferencesAndConfigFile();
-                putGravityForceIntoSharedPreferencesAndConfigFile();
-                editor.apply();
 
-                Toast.makeText(this, "Your settings has been successfully saved", Toast.LENGTH_LONG).show();
+            if(!windowTimeValue.getText().toString().equals(""))
+                putWindowTimeValueIntoSharedPreferencesAndConfigFile();
+
+            putGravityForceIntoSharedPreferencesAndConfigFile();
+            editor.apply();
+
+            Toast.makeText(this, "Your settings has been successfully saved", Toast.LENGTH_LONG).show();
         });
 
     }
@@ -56,24 +60,18 @@ public class ChartsSettingsActivity extends AppCompatActivity {
     }
 
     private void putSamplingValueIntoSharedPreferencesAndConfigFile(){
-        int samplingValueInHz=50;
         Editable fromEditText = samplingValue.getText();
 
-        if(fromEditText.length()>0)
-            samplingValueInHz = Integer.valueOf(fromEditText.toString());
-
+        int samplingValueInHz = Integer.valueOf(fromEditText.toString());
 
         editor.putInt("samplingValueInHz", samplingValueInHz);
         ChartsSettings.setSampligValue(samplingValueInHz);
     }
 
     private void putWindowTimeValueIntoSharedPreferencesAndConfigFile(){
-        int windowTimeValueInSeconds = 5;
         Editable fromEditText = windowTimeValue.getText();
 
-        if(fromEditText.length()>0)
-            windowTimeValueInSeconds = Integer.valueOf(fromEditText.toString());
-
+        int windowTimeValueInSeconds = Integer.valueOf(fromEditText.toString());
 
         editor.putInt("windowTimeValueInSeconds", windowTimeValueInSeconds);
         ChartsSettings.setWindowTimeValue(windowTimeValueInSeconds);
