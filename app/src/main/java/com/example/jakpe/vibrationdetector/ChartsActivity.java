@@ -10,9 +10,14 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Button;
 
+import com.example.jakpe.vibrationdetector.services.DataService;
+import com.example.jakpe.vibrationdetector.settings.AcquisitionSettingsActivity;
 import com.example.jakpe.vibrationdetector.settings.ChartsSettings;
+import com.example.jakpe.vibrationdetector.settings.ChartsSettingsActivity;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.LegendRenderer;
 import com.jjoe64.graphview.series.DataPoint;
@@ -27,22 +32,24 @@ public class ChartsActivity extends AppCompatActivity {
     Toolbar chartsToolbar;
 
     @BindView(R.id.X_graph)
-    GraphView x_graph;
+    GraphView xGraph;
 
     @BindView(R.id.Y_graph)
-    GraphView y_graph;
+    GraphView yGraph;
 
     @BindView(R.id.Z_graph)
-    GraphView z_graph;
+    GraphView zGraph;
 
     @BindView(R.id.X_Analysis)
-    Button x_analysis;
+    Button xAnalysis;
 
     @BindView(R.id.Y_Analysis)
-    Button y_analysis;
+    Button yAnalysis;
 
     @BindView(R.id.Z_Analysis)
-    Button z_analysis;
+    Button zZnalysis;
+
+
 
     private LineGraphSeries<DataPoint> xAxisAccSeries, yAxisAccSeries, zAxisAccSeries;
     double samplingFrequency;
@@ -54,7 +61,7 @@ public class ChartsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_charts);
         ButterKnife.bind(this);
 
-        vectorTime=0.02;
+        vectorTime=0;
         initUi();
     }
 
@@ -65,30 +72,56 @@ public class ChartsActivity extends AppCompatActivity {
         if (ab != null) {
             ab.setTitle(getString(R.string.charts));
             ab.setIcon(R.drawable.wave);
-            ab.setDisplayHomeAsUpEnabled(true);
         }
 
-        x_analysis.setOnClickListener( view -> {
+
+        xAnalysis.setOnClickListener(view -> {
             startAnalysisActivity("X");
         });
 
-        y_analysis.setOnClickListener( view -> {
+        yAnalysis.setOnClickListener(view -> {
             startAnalysisActivity("Y");
         });
 
-        z_analysis.setOnClickListener( view -> {
+        zZnalysis.setOnClickListener(view -> {
             startAnalysisActivity("Z");
         });
 
-        configureGraphs(x_graph);
-        configureGraphs(y_graph);
-        configureGraphs(z_graph);
+        configureGraphs(xGraph);
+        configureGraphs(yGraph);
+        configureGraphs(zGraph);
         addSeries();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getMenuInflater().inflate(R.menu.settings_menu,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int clickedItemID = item.getItemId();
+        switch(clickedItemID){
+            case R.id.charts_settings_other_menu:
+                Intent chartsSettingsIntent = new Intent(this, ChartsSettingsActivity.class);
+                startActivity(chartsSettingsIntent);
+                break;
+            case R.id.acquisition_settings_other_menu:
+                Intent acquisitionSettingsIntent = new Intent(this, AcquisitionSettingsActivity.class);
+                startActivity(acquisitionSettingsIntent);
+                break;
+        }
+
+
+        return super.onOptionsItemSelected(item);
+    }
+
+
     private void startAnalysisActivity(String axis){
-        final Intent analysisActivity = new Intent(this, NewMeasurement.class);
-        System.out.println("charts" + axis);
+        Intent analysisActivity = new Intent(this, NewMeasurement.class);
         analysisActivity.putExtra("axis", axis);
         startActivity(analysisActivity);
     }
@@ -109,25 +142,23 @@ public class ChartsActivity extends AppCompatActivity {
         graph.getGridLabelRenderer().setHorizontalAxisTitleColor(Color.rgb(0,128,255));
         graph.getGridLabelRenderer().setVerticalAxisTitleColor(Color.rgb(0,128,255));
 
-
-
     }
 
     private void addSeries(){
         xAxisAccSeries = new LineGraphSeries<>();
         xAxisAccSeries.setTitle("x");
         xAxisAccSeries.setColor(Color.BLUE);
-        x_graph.addSeries(xAxisAccSeries);
+        xGraph.addSeries(xAxisAccSeries);
 
         yAxisAccSeries = new LineGraphSeries<>();
         yAxisAccSeries.setTitle("y");
         yAxisAccSeries.setColor(Color.RED);
-        y_graph.addSeries(yAxisAccSeries);
+        yGraph.addSeries(yAxisAccSeries);
 
         zAxisAccSeries = new LineGraphSeries<>();
         zAxisAccSeries.setTitle("z");
         zAxisAccSeries.setColor(Color.GREEN);
-        z_graph.addSeries(zAxisAccSeries);
+        zGraph.addSeries(zAxisAccSeries);
     }
 
 
@@ -152,7 +183,6 @@ public class ChartsActivity extends AppCompatActivity {
 
 
                 vectorTime+=(1/samplingFrequency);
-//                System.out.println(1/samplingFrequency);
             }
         }
     };
@@ -184,7 +214,7 @@ public class ChartsActivity extends AppCompatActivity {
 
     private void startDataService(){
         Intent mySensorIntent = new Intent(this, DataService.class);
-        mySensorIntent.putExtra("Window Time" , 5);
+        mySensorIntent.putExtra("Analysis Mode", "OFF");
         startService(mySensorIntent);
     }
 

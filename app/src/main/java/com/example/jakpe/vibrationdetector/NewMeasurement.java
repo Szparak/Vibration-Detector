@@ -17,9 +17,9 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.jakpe.vibrationdetector.implementations.MeasurementPresenterImpl;
-import com.example.jakpe.vibrationdetector.implementations.MeasurementRepositoryImpl;
-import com.example.jakpe.vibrationdetector.interfaces.MeasurementContract;
+
+import com.example.jakpe.vibrationdetector.services.DFTService;
+import com.example.jakpe.vibrationdetector.services.DataService;
 import com.example.jakpe.vibrationdetector.settings.AcquisitionSettings;
 import com.example.jakpe.vibrationdetector.settings.AcquisitionSettingsActivity;
 import com.example.jakpe.vibrationdetector.settings.ChartsSettings;
@@ -35,9 +35,8 @@ import java.util.Date;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class NewMeasurement extends AppCompatActivity implements MeasurementContract.MeasurementView{
+public class NewMeasurement extends AppCompatActivity{
 
-    private MeasurementPresenterImpl measurementPresenter = new MeasurementPresenterImpl(MeasurementRepositoryImpl.getInstance());
     private LineGraphSeries<DataPoint> axisAccSeries;
     Intent mySensorIntent;
     @BindView(R.id.new_measurement_toolbar)
@@ -64,6 +63,8 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
     private double vectorTime;
     StringBuilder stringBuilder = new StringBuilder();
     double samplingFrequency;
+    SharedPreferences settings;
+    SharedPreferences.Editor editor;
 
 
     @Override
@@ -78,28 +79,19 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
         FileSaver.verifyStoragePermissions(this);
 
         stringBuilder.append("resultValue").append(axis);
-        SharedPreferences settings = getSharedPreferences("info", 0);
-        String check = settings.getString("check", "");
-        System.out.println(check);
 
         initUi();
-        setPresenter();
+
     }
 
-
-
-    private void setPresenter(){
-        measurementPresenter.attach(this);
-    }
 
     private void initUi(){
 
         setSupportActionBar(myToolbar);
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
-            ab.setTitle(getString(R.string.nowy_pomiar));
+            ab.setTitle(getString(R.string.analysis_charts));
             ab.setIcon(R.drawable.wave);
-            ab.setDisplayHomeAsUpEnabled(true);
         }
 
         acquisitionProgressBar.setVisibility(View.INVISIBLE);
@@ -152,6 +144,9 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
+        settings = getSharedPreferences("AcquisitionSettings", 0);
+        editor = settings.edit();
+
         int clickedItemID = item.getItemId();
         switch(clickedItemID){
             case R.id.charts_settings:
@@ -169,6 +164,8 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
                 DataService.isStopped = true;
                 FileSaver.measurementStartDate = Calendar.getInstance().getTime();
                 AcquisitionSettings.fileCounter++;
+                editor.putInt("fileCounter", AcquisitionSettings.fileCounter);
+                editor.apply();
                 updateProgressbar();
         }
 
@@ -338,10 +335,5 @@ public class NewMeasurement extends AppCompatActivity implements MeasurementCont
     }
 
 
-    @Override
-    protected void onDestroy() {
-        measurementPresenter.detach();
-        super.onDestroy();
-    }
 
 }

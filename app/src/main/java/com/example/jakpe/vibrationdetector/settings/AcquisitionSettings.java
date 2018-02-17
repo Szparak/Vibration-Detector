@@ -12,13 +12,16 @@ public class AcquisitionSettings {
     private static int measurementTime;
     public static int fileCounter;
 
+    public static void setFileCounter(int fileCounter) {
+        AcquisitionSettings.fileCounter = fileCounter;
+    }
+
     public static String getFileName() {
         return fileName;
     }
 
     public static void setFileName(String fileName) {
         AcquisitionSettings.fileName = fileName;
-        fileCounter=0;
     }
 
     public static String getDescription() {

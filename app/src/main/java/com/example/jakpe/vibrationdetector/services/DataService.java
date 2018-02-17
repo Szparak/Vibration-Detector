@@ -1,4 +1,4 @@
-package com.example.jakpe.vibrationdetector;
+package com.example.jakpe.vibrationdetector.services;
 
 import android.app.Activity;
 import android.app.IntentService;
@@ -8,11 +8,12 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
 
+import com.example.jakpe.vibrationdetector.FileSaver;
+import com.example.jakpe.vibrationdetector.services.DFTService;
 import com.example.jakpe.vibrationdetector.settings.AcquisitionSettings;
 import com.example.jakpe.vibrationdetector.settings.ChartsSettings;
 
@@ -30,7 +31,7 @@ public class DataService extends IntentService implements SensorEventListener {
     double gravityX, gravityY, gravityZ;
     private SensorManager mSensorManager;
     private Sensor mSensor;
-    public static final String ACTION = "com.example.jakpe.vibrationdetector.DataService";
+    public static final String ACTION = "com.example.jakpe.vibrationdetector.services.DataService";
     private double[] accelerationValuesInWindow;
     String axis;
     private int acquisitionSamplingFreq;

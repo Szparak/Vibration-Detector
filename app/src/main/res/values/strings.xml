@@ -2,7 +2,7 @@
     <string name="app_name">Vibration Detector</string>
     <string name="title_activity_nowy_pomiar">NowyPomiar</string>
     <string name="main_title">Vibration Detector</string>
-    <string name="nowy_pomiar">New measurement</string>
+    <string name="analysis_charts">Analysis Charts</string>
     <string name="wczytaj_pomiar">Load data</string>
     <string name="charts">Acceleration Charts</string>
     <string name="sampling_time">Sampling time[Hz]</string>
@@ -20,5 +20,9 @@
     <string name="X_Analysis">X Analysis</string>
     <string name="Y_Analysis">Y Analysis</string>
     <string name="Z_Analysis">Z Analysis</string>
+    <string name="X_displacement">X Disp</string>
+    <string name="Y_displacement">Y Disp</string>
+    <string name="Z_displacement">Z Disp</string>
+    <string name="displacement_charts">Displacement View</string>
 
 </resources>

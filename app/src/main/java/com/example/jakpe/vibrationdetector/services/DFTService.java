@@ -1,10 +1,12 @@
-package com.example.jakpe.vibrationdetector;
+package com.example.jakpe.vibrationdetector.services;
 
 import android.app.Activity;
 import android.app.IntentService;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+
+import com.example.jakpe.vibrationdetector.DFTCalculations;
 
 /**
  * Created by pernal on 10.12.17.
@@ -17,7 +19,7 @@ public class DFTService extends IntentService {
     private double amplitudeForMaxFrequency;
     private double displacementAmplitudeForMaxFrequency;
     private double[] absDftValues;
-    public static final String ACTION = "com.example.jakpe.vibrationdetector.DFTService";
+    public static final String ACTION = "com.example.jakpe.vibrationdetector.services.DFTService";
 
     public DFTService() {
         super("DFT service");

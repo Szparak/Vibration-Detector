@@ -13,10 +13,11 @@
         android:title="Acquisition Settings"/>
 
 
-    <item android:orderInCategory="1"
-        android:title=" "
+    <item
         android:id="@+id/save"
+        android:icon="@drawable/icon_save"
+        android:orderInCategory="1"
+        android:title=" "
         android:visible="true"
-        app:showAsAction="always"
-        android:icon="@drawable/icon_save"/>
+        app:showAsAction="always" />
 </menu>

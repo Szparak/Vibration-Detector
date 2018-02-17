@@ -41,10 +41,16 @@ public class AcquisitionSettingsActivity extends AppCompatActivity {
 
         saveAcquisitionStateButton.setOnClickListener(v -> {
 
-            putSamplingValueIntoSharedPreferencesAndConfigFile();
-            putFileNameValueIntoSharedPreferencesAndConfigFile();
+            if(!samplingEditText.getText().toString().equals(""))
+                putSamplingValueIntoSharedPreferencesAndConfigFile();
+
             putDescriptionValueIntoSharedPreferencesAndConfigFile();
-            putMeasurementTimeValueIntoSharedPreferencesAndConfigFile();
+
+            if(!measurementTimeEditText.getText().toString().equals(""))
+                putMeasurementTimeValueIntoSharedPreferencesAndConfigFile();
+            if(!fileNameEditText.getText().toString().equals(""))
+                putFileNameValueIntoSharedPreferencesAndConfigFile();
+
 
             editor.apply();
 
@@ -54,12 +60,14 @@ public class AcquisitionSettingsActivity extends AppCompatActivity {
 
     }
 
-    private void putSamplingValueIntoSharedPreferencesAndConfigFile(){
-        int samplingValueInHz=500;
-        Editable fromEditText = samplingEditText.getText();
+    private void clearFileCounter() {
+        AcquisitionSettings.fileCounter=0;
+        editor.putInt("fileCounter", AcquisitionSettings.fileCounter);
+    }
 
-        if(fromEditText.length()>0)
-            samplingValueInHz=Integer.valueOf(fromEditText.toString());
+    private void putSamplingValueIntoSharedPreferencesAndConfigFile(){
+        Editable fromEditText = samplingEditText.getText();
+        int samplingValueInHz=Integer.valueOf(fromEditText.toString());
 
         editor.putInt("samplingValueInHz", samplingValueInHz);
         AcquisitionSettings.setSamplingFrequency(samplingValueInHz);
@@ -67,14 +75,13 @@ public class AcquisitionSettingsActivity extends AppCompatActivity {
     }
 
     private void putFileNameValueIntoSharedPreferencesAndConfigFile(){
-        String fileNameValue="measurement";
         Editable fromEditText = fileNameEditText.getText();
 
-        if(fromEditText.length()>0)
-            fileNameValue=fromEditText.toString();
+        String fileNameValue=fromEditText.toString();
 
         editor.putString("fileNameValue", fileNameValue);
         AcquisitionSettings.setFileName(fileNameValue);
+        clearFileCounter();
     }
 
     private void putDescriptionValueIntoSharedPreferencesAndConfigFile(){
