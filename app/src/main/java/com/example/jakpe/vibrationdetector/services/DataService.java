@@ -1,3 +1,8 @@
+/**
+ Serwis odpowiedzialny za czytanie danych z akcelerometru,
+ wysyłanie ich transmisją broadcast a także za całą logikę
+ zapisu danych i ich filtracji
+ **/
 package com.example.jakpe.vibrationdetector.services;
 
 import android.app.Activity;
@@ -19,11 +24,10 @@ import com.example.jakpe.vibrationdetector.settings.ChartsSettings;
 
 import java.io.IOException;
 
-/**
- * Created by pernal on 09.12.17.
- */
 
 public class DataService extends IntentService implements SensorEventListener {
+
+    // inicjaliacja pól klasy
     public static volatile boolean isStopped;
     private double accelerationValueX=0;
     private double accelerationValueY=0;
@@ -47,10 +51,12 @@ public class DataService extends IntentService implements SensorEventListener {
     private double[] acquisitionZTable;
 
 
+    // Konstruktor bezargumentowy
     public DataService() {
         super("Data service");
     }
 
+    // metoda cyklu życia serwisu uruchamiana przy jego starcie
     @Override
     public void onCreate() {
         super.onCreate();
@@ -60,8 +66,8 @@ public class DataService extends IntentService implements SensorEventListener {
         gravityX=0;
         gravityY=0;
         gravityZ=0;
-        acquisitionSamplingFreq = AcquisitionSettings.getSamplingFrequency(); //do podpiecia
-        measurementTime = AcquisitionSettings.getMeasurementTime(); //do podpiecia
+        acquisitionSamplingFreq = AcquisitionSettings.getSamplingFrequency();
+        measurementTime = AcquisitionSettings.getMeasurementTime();
         samplingFrequency = ChartsSettings.getSampligValue();
         analysisWindowTime = ChartsSettings.getWindowTimeValue();
         gravityForceFilter = ChartsSettings.getGravityForce();
@@ -71,6 +77,7 @@ public class DataService extends IntentService implements SensorEventListener {
         acquisitionZTable=new double[measurementTime*acquisitionSamplingFreq];
     }
 
+    // główna metoda serwisu obsługująca logikę
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
 
@@ -84,14 +91,18 @@ public class DataService extends IntentService implements SensorEventListener {
             broadcastIntent.putExtra("resultCode" , Activity.RESULT_OK);
             double frequencySize =(double) samplingFrequency / accelerationValuesInWindow.length ;
 
+            // pętla rozsyłania danych
             while(!isStopped){
 
+                // realizacja próbkowania
                 try {
                     Thread.sleep(samplingInMillis);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
+                // realizacja zapisu danych w oknie czasowym
+                // i start serwisu realizującego ich przetwarzanie
                 if(analysisMode!=null && analysisMode.equals("ON")){
                     if(iteration == accelerationValuesInWindow.length-1){
                         new Thread(() -> startDFTService(accelerationValuesInWindow, frequencySize)).start();
@@ -102,6 +113,7 @@ public class DataService extends IntentService implements SensorEventListener {
                     iteration++;
                 }
 
+                // rozsyłanie danych
                 broadcastIntent.putExtra("resultValueX" , accelerationValueX);
                 broadcastIntent.putExtra("resultValueY" , accelerationValueY);
                 broadcastIntent.putExtra("resultValueZ" , accelerationValueZ);
@@ -114,12 +126,14 @@ public class DataService extends IntentService implements SensorEventListener {
             gravityY=0;
             gravityZ=0;
 
+            // pętla akwizycji danych do pliku
             for(int i=0; i<acquisitionXTable.length; i++){
 
                 acquisitionXTable[i]=accelerationValueX;
                 acquisitionYTable[i]=accelerationValueY;
                 acquisitionZTable[i]=accelerationValueZ;
 
+                // realizacja próbkowania
                 try {
                     Thread.sleep(1000/acquisitionSamplingFreq);
                 } catch (InterruptedException e) {
@@ -128,6 +142,7 @@ public class DataService extends IntentService implements SensorEventListener {
             }
             writingMode=false;
 
+            // wątek zapisujący dane do pliku
             new Thread(() -> {
                 try {
                     FileSaver.saveData(acquisitionXTable, acquisitionYTable, acquisitionZTable);
@@ -139,6 +154,7 @@ public class DataService extends IntentService implements SensorEventListener {
 
     }
 
+    // metoda startująca serwis DFT
     private void startDFTService(double[] valuesArray, double frequencySize){
         Intent dftIntent = new Intent(this , DFTService.class);
         dftIntent.putExtra("acceleration values" , valuesArray);
@@ -146,6 +162,7 @@ public class DataService extends IntentService implements SensorEventListener {
         startService(dftIntent);
     }
 
+    // metoda rozstrzygająca oś która ma być zapisywana
     private void putValueIntoAxisArray(String axis, int iteration){
 
         if(axis.equals("X"))
@@ -157,6 +174,7 @@ public class DataService extends IntentService implements SensorEventListener {
 
     }
 
+    // metoda ustawiająca akcelerometr
     void setupSensor(){
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensor = null;
@@ -174,6 +192,7 @@ public class DataService extends IntentService implements SensorEventListener {
 
     }
 
+    // metoda czytająca dane z akcelerometru
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
 
@@ -189,11 +208,14 @@ public class DataService extends IntentService implements SensorEventListener {
         accelerationValueZ=sensorEvent.values[2] - gravityZ;
     }
 
+    // Nieużywana metoda inferfejsu SensorEventListener
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
 
+    // metoda cyklu życia serwisu wywoływana podczas
+    // jego zakończenia
     @Override
     public void onDestroy() {
         super.onDestroy();

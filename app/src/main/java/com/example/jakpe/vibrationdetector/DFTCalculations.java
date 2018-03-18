@@ -1,51 +1,58 @@
-package com.example.jakpe.vibrationdetector;
-
 /**
- * Created by pernal on 10.12.17.
- */
+ Klasa odpowiedzialna za obliczanie parametrów
+ **/
+package com.example.jakpe.vibrationdetector;
 
 public class DFTCalculations {
 
+    // deklaracja pól klasy
     private double outReal[];
     private double outImag[];
     private double absValue[];
     private double highestAccelerationAmplitude=0;
     private double highestDisplacementAmplitude=0;
 
+    // metoda pobierająca amplitude przemieszczenia
     public double getHighestDisplacementAmplitude() {
         return roundDoubleValue(highestDisplacementAmplitude,2);
     }
 
+    // metoda pobierająca amplitude przyspieszenia
     public double getHighestAmplitude() {
         return roundDoubleValue(highestAccelerationAmplitude, 2);
     }
 
+    // metoda obliczająca części rzeczywiste
+    // i urojone widma
     public void calculateDFT(double[] inreal) {
-        int n = inreal.length;
-        outReal = new double[n];
-        outImag = new double[n];
-        for (int k = 0; k < n; k++) {  // For each output element
+        int N = inreal.length;
+        outReal = new double[N];
+        outImag = new double[N];
+        for (int k = 0; k < N; k++) {
             double sumReal = 0;
             double sumImag = 0;
-            for (int t = 0; t < n; t++) {  // For each input element
-                double angle = 2 * Math.PI * t * k / n;
-                sumReal +=  inreal[t] * Math.cos(angle);
-                sumImag += -inreal[t] * Math.sin(angle);
+            for (int n = 0; n < N; n++) {
+                double angle = 2 * Math.PI * n * k / N;
+                sumReal +=  inreal[n] * Math.cos(angle);
+                sumImag += -inreal[n] * Math.sin(angle);
             }
-            outReal[k] = sumReal/(0.4*n);
-            outImag[k] = sumImag/(0.4*n);
+            outReal[k] = sumReal/N;
+            outImag[k] = sumImag/N;
         }
     }
 
+    // metoda obliczająca widmo amplitudowe
     public double[] calculateAndGetAbsValueOfDFT(){
-        absValue = new double[outReal.length];
+        absValue = new double[outReal.length/2];
         for(int i=0; i<absValue.length; i++){
-            absValue[i] = Math.sqrt(Math.pow(outReal[i], 2) + Math.pow(outImag[i], 2));
+            absValue[i] = Math.sqrt(Math.pow(outReal[i], 2) +
+                    Math.pow(outImag[i], 2));
         }
 
         return absValue;
     }
 
+    // metoda obliczająca dominującą częstotliwość w oknie czasowym
     public double calculateHighestFrequency(double frequencySize){
         double frequency = 0;
 
@@ -60,16 +67,19 @@ public class DFTCalculations {
 
         frequency = roundDoubleValue(frequency, 2);
         calculateHighestDisplacementAmplitude(frequency);
-        return frequency;
+        return roundDoubleValue(frequency, 2);
     }
 
+    // metoda obliczająca największa amplitude przemieszczenia
     private void calculateHighestDisplacementAmplitude(double frequency){
         if(frequency!=0)
-            highestDisplacementAmplitude = highestAccelerationAmplitude/Math.pow(2*Math.PI*frequency,2)*1000;
+            highestDisplacementAmplitude = highestAccelerationAmplitude/
+                    Math.pow(2*Math.PI*frequency,2)*1000;
         else
             highestDisplacementAmplitude = 0;
     }
 
+    // metoda obliczająca największą wartość przyspieszenia w oknie
     public double calculateHighestAccelerationInWindowTime(double[] accelerationValues){
         double highestAccelerationValue=0;
         for(int i=0; i<accelerationValues.length; i++){
@@ -80,11 +90,14 @@ public class DFTCalculations {
         return roundDoubleValue(highestAccelerationValue, 2);
     }
 
+    // metoda pobierająca liczbę próbek
     public double getNumberOfSamples(){
         return absValue.length;
     }
 
 
+    // metoda zaokrąglająca wartości typu double
+    // do podanych miejsc po przecinku
     private double roundDoubleValue(double value, int precise){
         long factor=0;
         long tmp =0;

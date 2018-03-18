@@ -1,3 +1,6 @@
+/**
+ Serwis odpowiedzialny za obliczanie DFT i jej parametrów
+ **/
 package com.example.jakpe.vibrationdetector.services;
 
 import android.app.Activity;
@@ -8,12 +11,10 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.example.jakpe.vibrationdetector.DFTCalculations;
 
-/**
- * Created by pernal on 10.12.17.
- */
 
 public class DFTService extends IntentService {
 
+    // inicjalizacja pól klasy
     private double[] accelerationValuesInWindow;
     private double frequencySize;
     private double amplitudeForMaxFrequency;
@@ -21,10 +22,12 @@ public class DFTService extends IntentService {
     private double[] absDftValues;
     public static final String ACTION = "com.example.jakpe.vibrationdetector.services.DFTService";
 
+    // konstruktor bezparametrowy
     public DFTService() {
         super("DFT service");
     }
 
+    // główna metoda serwisu obsługująca logikę
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         Intent broadcastIntent = new Intent(ACTION);
@@ -34,6 +37,7 @@ public class DFTService extends IntentService {
         double calculateHighestAccelerationInWindowTimeValue;
         double numberOfSamples;
 
+        // wywoływanie metod w celu przeprowadzenia obliczeń
         DFTCalculations dftCalculation = new DFTCalculations();
         dftCalculation.calculateDFT(accelerationValuesInWindow);
         absDftValues = dftCalculation.calculateAndGetAbsValueOfDFT();
@@ -43,7 +47,7 @@ public class DFTService extends IntentService {
         calculateHighestAccelerationInWindowTimeValue = dftCalculation.calculateHighestAccelerationInWindowTime(accelerationValuesInWindow);
         numberOfSamples = dftCalculation.getNumberOfSamples();
 
-
+        // wysłanie transmisji broadcast z parametrami
         broadcastIntent.putExtra("resultCode" , Activity.RESULT_OK);
         broadcastIntent.putExtra("frequency size", frequencySize);
         broadcastIntent.putExtra("acceleration values", absDftValues);

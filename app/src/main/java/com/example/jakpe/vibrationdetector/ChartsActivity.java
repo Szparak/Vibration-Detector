@@ -1,3 +1,8 @@
+
+/**
+ Aktywność odpowiedzialna za wyświetlanie wykresów przyspieszeń
+ w 3 osiach.
+ **/
 package com.example.jakpe.vibrationdetector;
 
 import android.content.BroadcastReceiver;
@@ -28,6 +33,7 @@ import butterknife.ButterKnife;
 
 public class ChartsActivity extends AppCompatActivity {
 
+    // Podpięcie widoków do zmiennych
     @BindView(R.id.charts_toolbar)
     Toolbar chartsToolbar;
 
@@ -50,11 +56,12 @@ public class ChartsActivity extends AppCompatActivity {
     Button zZnalysis;
 
 
-
+    //inicjalizacja pól klasy
     private LineGraphSeries<DataPoint> xAxisAccSeries, yAxisAccSeries, zAxisAccSeries;
     double samplingFrequency;
     double vectorTime;
 
+    // metoda cyklu życia aktywności uruchamiana podczas jej tworzenia
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +72,7 @@ public class ChartsActivity extends AppCompatActivity {
         initUi();
     }
 
+    //metoda inicjująca ustawienia interfejs
     private void initUi(){
 
         setSupportActionBar(chartsToolbar);
@@ -74,7 +82,7 @@ public class ChartsActivity extends AppCompatActivity {
             ab.setIcon(R.drawable.wave);
         }
 
-
+        // listenery słuchające zdarzeń na przyciskach
         xAnalysis.setOnClickListener(view -> {
             startAnalysisActivity("X");
         });
@@ -87,12 +95,14 @@ public class ChartsActivity extends AppCompatActivity {
             startAnalysisActivity("Z");
         });
 
+        // konfiguracja wykresów
         configureGraphs(xGraph);
         configureGraphs(yGraph);
         configureGraphs(zGraph);
         addSeries();
     }
 
+    // metoda androidowa przypisująca menu do aktywności
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -100,15 +110,18 @@ public class ChartsActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    // metoda androidowa reagująca na wciśnięcie widoku w menu
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int clickedItemID = item.getItemId();
         switch(clickedItemID){
+            // uruchomienie aktywności z ustawieniami
             case R.id.charts_settings_other_menu:
                 Intent chartsSettingsIntent = new Intent(this, ChartsSettingsActivity.class);
                 startActivity(chartsSettingsIntent);
                 break;
+            // uruchomienie aktywności z ustawieniami
             case R.id.acquisition_settings_other_menu:
                 Intent acquisitionSettingsIntent = new Intent(this, AcquisitionSettingsActivity.class);
                 startActivity(acquisitionSettingsIntent);
@@ -119,13 +132,14 @@ public class ChartsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
+    // metoda uruchamiająca aktywność AnalysisActivity
     private void startAnalysisActivity(String axis){
         Intent analysisActivity = new Intent(this, AnalysisActivity.class);
         analysisActivity.putExtra("axis", axis);
         startActivity(analysisActivity);
     }
 
+    // metoda konfigurująca wykresy
     private void configureGraphs(GraphView graph){
         graph.getViewport().setXAxisBoundsManual(true);
         graph.getViewport().setMinX(0);
@@ -144,6 +158,7 @@ public class ChartsActivity extends AppCompatActivity {
 
     }
 
+    // metoda dodająca serie do wykresów
     private void addSeries(){
         xAxisAccSeries = new LineGraphSeries<>();
         xAxisAccSeries.setTitle("x");
@@ -161,18 +176,22 @@ public class ChartsActivity extends AppCompatActivity {
         zGraph.addSeries(zAxisAccSeries);
     }
 
-
+    // obiekt odbierający transmisję broadcast od serwisu
     private BroadcastReceiver valuesReceiver = new BroadcastReceiver() {
         DataPoint xDataPoint, yDataPoint, zDataPoint;
 
-
+        // metoda reagująca na zdarzenie otrzymania transmisji
         @Override
         public void onReceive(Context context, Intent intent) {
-            int resultCode = intent.getIntExtra("resultCode", RESULT_CANCELED);
+            int resultCode = intent.getIntExtra("resultCode",
+                    RESULT_CANCELED);
             if (resultCode == RESULT_OK) {
-                double xResultValue = intent.getDoubleExtra("resultValueX",0);
-                double yResultValue = intent.getDoubleExtra("resultValueY",0);
-                double zResultValue = intent.getDoubleExtra("resultValueZ",0);
+                double xResultValue = intent.getDoubleExtra("resultValueX",
+                        0);
+                double yResultValue = intent.getDoubleExtra("resultValueY",
+                        0);
+                double zResultValue = intent.getDoubleExtra("resultValueZ",
+                        0);
                 xDataPoint = new DataPoint(vectorTime, xResultValue);
                 yDataPoint = new DataPoint(vectorTime, yResultValue);
                 zDataPoint = new DataPoint(vectorTime, zResultValue);
@@ -187,19 +206,27 @@ public class ChartsActivity extends AppCompatActivity {
         }
     };
 
+    // metoda dodająca punkt do serii na wykresie
     public void appendData(DataPoint dataPoint, LineGraphSeries<DataPoint> graphSeries) {
         graphSeries.appendData(dataPoint, true, 150);
     }
 
+    // metoda cyklu życia aktywności wywoływana gdy aktywność
+    // wróci po uśpieniu
     @Override
     protected void onResume() {
         super.onResume();
         samplingFrequency = ChartsSettings.getSampligValue();
         IntentFilter filter = new IntentFilter(DataService.ACTION);
+
+        // rejestracja obiektów odbierających broadcast
         LocalBroadcastManager.getInstance(this).registerReceiver(valuesReceiver, filter);
+        // start serwisu
         startDataService();
     }
 
+    // metoda cyklu życia aktywności wywoływana gdy aktywność przechodzi
+    // w stan uśpienia
     @Override
     protected void onPause() {
         super.onPause();
@@ -212,6 +239,7 @@ public class ChartsActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(valuesReceiver);
     }
 
+    // metoda uruchamiająca DataService
     private void startDataService(){
         Intent mySensorIntent = new Intent(this, DataService.class);
         mySensorIntent.putExtra("Analysis Mode", "OFF");

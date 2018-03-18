@@ -1,3 +1,8 @@
+
+/**
+    Aktywność startowa aplikacji, odpowiedzialna za wyświetlanie
+    informacji o nazwie i wersji aplikacji
+**/
 package com.example.jakpe.vibrationdetector;
 
 import android.content.Intent;
@@ -24,6 +29,7 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
 
+    // Podpięcie widoków do zmiennych
     @BindView(R.id.my_toolbar)
     Toolbar mainToolbar ;
 
@@ -31,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     Button showChartsButton;
 
 
+    // metoda cyklu życia aktywności uruchamiana podczas jej tworzenia
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
@@ -44,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         getSettingsFromSharedPreferencesAndSetAcquisitionSettings();
     }
 
+    // metoda androidowa przypisująca menu do aktywności
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -51,17 +59,20 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    // metoda androidowa reagująca na wciśnięcie widoku w menu
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int clickedItemID = item.getItemId();
         switch(clickedItemID){
             case R.id.charts_settings_other_menu:
-                Intent chartsSettingsIntent = new Intent(this, ChartsSettingsActivity.class);
+                Intent chartsSettingsIntent = new Intent(this,
+                        ChartsSettingsActivity.class);
                 startActivity(chartsSettingsIntent);
                 break;
             case R.id.acquisition_settings_other_menu:
-                Intent acquisitionSettingsIntent = new Intent(this, AcquisitionSettingsActivity.class);
+                Intent acquisitionSettingsIntent = new Intent(this,
+                        AcquisitionSettingsActivity.class);
                 startActivity(acquisitionSettingsIntent);
                 break;
         }
@@ -70,26 +81,39 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    // metoda przypisująca ustawieniom ChartsSettings ich wartości
+    // w przypadku braku ustawień przypisane zostaną domyślne
     private void getSettingsFromSharedPreferencesAndSetAcquisitionSettings() {
 
-        SharedPreferences settings = getSharedPreferences("AcquisitionSettings", 0);
-        AcquisitionSettings.setMeasurementTime(settings.getInt("measurementTimeValueInSeconds", 10));
-        AcquisitionSettings.setSamplingFrequency(settings.getInt("samplingValueInHz", 100));
+        SharedPreferences settings = getSharedPreferences("AcquisitionSettings",
+                0);
+        AcquisitionSettings.setMeasurementTime(settings.
+                getInt("measurementTimeValueInSeconds", 10));
+        AcquisitionSettings.setSamplingFrequency(settings.
+                getInt("samplingValueInHz", 100));
         AcquisitionSettings.setDescription("***No content***");
-        AcquisitionSettings.setFileName(settings.getString("fileNameValue", "measurement"));
-        AcquisitionSettings.setFileCounter(settings.getInt("fileCounter", 0));
+        AcquisitionSettings.setFileName(settings.
+                getString("fileNameValue", "measurement"));
+        AcquisitionSettings.setFileCounter(settings.
+                getInt("fileCounter", 0));
 
     }
 
+    // metoda przypisująca ustawieniom AcquisitionSettings ich wartości
+    // w przypadku braku ustawień przypisane zostaną domyślne
     private void getSettingsFromSharedPreferencesAndSetChartsSettings(){
 
-        SharedPreferences settings = getSharedPreferences("ChartsSettings", 0);
-        ChartsSettings.setGravityForce(settings.getBoolean("gravityForceCheckboxState", false));
-        ChartsSettings.setWindowTimeValue(settings.getInt("windowTimeValueInSeconds", 5));
-        ChartsSettings.setSampligValue(settings.getInt("samplingValueInHz", 50));
+        SharedPreferences settings = getSharedPreferences("ChartsSettings",
+                0);
+        ChartsSettings.setGravityForce(settings.
+                getBoolean("gravityForceCheckboxState", false));
+        ChartsSettings.setWindowTimeValue(settings.
+                getInt("windowTimeValueInSeconds", 5));
+        ChartsSettings.setSampligValue(settings.
+                getInt("samplingValueInHz", 50));
     }
 
-
+    //metoda inicjująca ustawienia interfejs
     private void initUi(){
 
         setSupportActionBar(mainToolbar);
@@ -100,13 +124,13 @@ public class MainActivity extends AppCompatActivity {
             mainActionBar.setIcon(R.drawable.wave);
         }
 
-
+        // listener nasłuchujący zdarzenia wciśnięcia przycisku
         showChartsButton.setOnClickListener(v -> startNewMeasurementActivity());
 
     }
 
 
-
+    // metoda uruchamiająca aktywność ChartsActivity
     public void startNewMeasurementActivity() {
         final Intent chartsActivity = new Intent(this, ChartsActivity.class);
         startActivity(chartsActivity);

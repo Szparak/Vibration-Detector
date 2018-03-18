@@ -1,3 +1,6 @@
+/**
+ Klasa odpowiedzialna za zapisywanie do pliku
+ **/
 package com.example.jakpe.vibrationdetector;
 
 import android.Manifest;
@@ -17,12 +20,9 @@ import java.util.Calendar;
 import java.util.Date;
 
 
-/**
- * Created by Pernal on 2/15/2018.
- */
-
 public class FileSaver {
 
+    // inicjalizacja pól klasy
     public static Date measurementStartDate;
     public static Sensor sensor;
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -31,6 +31,7 @@ public class FileSaver {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
+    // metoda pytająca o pozwolenie na zapis do pliku
     public static void verifyStoragePermissions(Activity activity) {
         int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
@@ -43,52 +44,68 @@ public class FileSaver {
         }
     }
 
+    // metoda zapisująca dane do pliku
+    public static void saveData(double xAxis[], double yAxis[],
+                                double zAxis[]) throws IOException {
 
-    public static void saveData(double xAxis[], double yAxis[], double zAxis[]) throws IOException {
-        String fileName = AcquisitionSettings.getFileName() + "_" + AcquisitionSettings.fileCounter +".txt";
+        String fileName = AcquisitionSettings.getFileName() + "_" +
+                AcquisitionSettings.fileCounter +".txt";
         String fileNameString = "#Filename: " + fileName+"\n";
-        double samplingTime =(double) 1/AcquisitionSettings.getSamplingFrequency();
-        String samplingTimeString ="#Sampling Time: " + Double.toString(samplingTime)+"\n";
+        double samplingTime =(double) 1/AcquisitionSettings.
+                getSamplingFrequency();
+        String samplingTimeString ="#Sampling Time: " + Double.
+                toString(samplingTime)+"\n";
 
-        String measurementDescription = "#Description: " + AcquisitionSettings.getDescription() +"\n";
+        String measurementDescription = "#Description: " + AcquisitionSettings.
+                getDescription() +"\n";
         String measurementStartTime ="#Start time: " + measurementStartDate + "\n";
 
         Date endTime = Calendar.getInstance().getTime();
         String endTimeString ="#End time: " + endTime + "\n\n\n";
-        String measurementTime = "#Measurement time: " + AcquisitionSettings.getMeasurementTime() +"s\n";
+        String measurementTime = "#Measurement time: " + AcquisitionSettings.
+                getMeasurementTime() +"s\n";
 
+        // pobranie parametrów z sensora
         int accMinDelay = sensor.getMinDelay();
         float accResolution = sensor.getResolution();
         float accRange = sensor.getMaximumRange();
         String accVendor = sensor.getVendor();
         String accName = sensor.getName();
         String line;
-        String deviceName = "#Device name: " + DeviceName.getDeviceName() + "\n";
+        String deviceName = "#Device name: " + DeviceName.getDeviceName() +
+                "\n";
 
-        String dir = Environment.getExternalStorageDirectory()+File.separator+"" +
+        String dir = Environment.getExternalStorageDirectory()+File.
+                separator+"" +
                 "VibrationDetectorMeasurements";
 
+        // utworzenie folderu
         File folder = new File(dir);
         folder.mkdirs();
 
+        // utworzenie pliku w folderze
         File file = new File(dir, fileName);
         file.createNewFile();
 
+        // otworzenie strumienia zapisu danych
         FileOutputStream fos = new FileOutputStream(file);
 
         String header = "           x[m/s^2]            "
                 + "         y[m/s^2]           "
                 + "           z[m/s^2]\n";
 
-        String accParameters = "#Accelerometer vendor: " + accVendor + "\n" + "#Accelerometer name: " +
+        String accParameters = "#Accelerometer vendor: " + accVendor +
+                "\n" + "#Accelerometer name: " +
                 accName + "\n"  + "#Accelerometer resolution: " +
                 Float.toString(accResolution) + " m/s^2" + "\n" +
                 "#Accelerometer maximum range: " +
                 Float.toString(accRange) + " m/s^2" +
-                "\n" + "#Accelerometer min delay: " + Integer.toString(accMinDelay)+
+                "\n" + "#Accelerometer min delay: " + Integer.
+                toString(accMinDelay)+
                 " µs" +
                 "\n\n\n";
 
+        // zapis danych
         fos.write(fileNameString.getBytes());
         fos.write(measurementDescription.getBytes());
         fos.write(measurementStartTime.getBytes());
@@ -103,6 +120,8 @@ public class FileSaver {
             line = "\n"+xAxis[i]+"   "+yAxis[i]+"   "+zAxis[i];
             fos.write(line.getBytes());
         }
+
+        // zamknięcie strumienia zapisu danych
         fos.close();
     }
 
