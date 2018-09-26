@@ -216,7 +216,7 @@ public class ChartsActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        samplingFrequency = ChartsSettings.getSampligValue();
+        samplingFrequency = ChartsSettings.getChartsSettings().getSamplingValue();
         IntentFilter filter = new IntentFilter(DataService.ACTION);
 
         // rejestracja obiektów odbierających broadcast

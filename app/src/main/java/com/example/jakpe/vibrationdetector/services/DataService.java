@@ -18,11 +18,12 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
 
 import com.example.jakpe.vibrationdetector.FileSaver;
-import com.example.jakpe.vibrationdetector.services.DFTService;
 import com.example.jakpe.vibrationdetector.settings.AcquisitionSettings;
 import com.example.jakpe.vibrationdetector.settings.ChartsSettings;
 
 import java.io.IOException;
+
+import lombok.val;
 
 
 public class DataService extends IntentService implements SensorEventListener {
@@ -60,17 +61,19 @@ public class DataService extends IntentService implements SensorEventListener {
     @Override
     public void onCreate() {
         super.onCreate();
+        val chartsSettings = ChartsSettings.getChartsSettings();
+        val acquisitionSettings = AcquisitionSettings.getAcquisitionSettings();
         isStopped = false;
         writingMode = false;
         setupSensor();
         gravityX=0;
         gravityY=0;
         gravityZ=0;
-        acquisitionSamplingFreq = AcquisitionSettings.getSamplingFrequency();
-        measurementTime = AcquisitionSettings.getMeasurementTime();
-        samplingFrequency = ChartsSettings.getSampligValue();
-        analysisWindowTime = ChartsSettings.getWindowTimeValue();
-        gravityForceFilter = ChartsSettings.getGravityForce();
+        acquisitionSamplingFreq = acquisitionSettings.getSamplingFrequency();
+        measurementTime = acquisitionSettings.getMeasurementTime();
+        samplingFrequency = chartsSettings.getSamplingValue();
+        analysisWindowTime = chartsSettings.getWindowTimeValue();
+        gravityForceFilter = chartsSettings.isGravityForce();
         samplingInMillis = 1000/samplingFrequency;
         acquisitionXTable=new double[measurementTime*acquisitionSamplingFreq];
         acquisitionYTable=new double[measurementTime*acquisitionSamplingFreq];

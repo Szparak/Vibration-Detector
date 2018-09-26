@@ -1,9 +1,3 @@
-/**
- aktywność odpowiedzialna za wyświetlanie wykresu przyspieszenia
- na osi która została wybrana w poprzedniej aktywności i wykresu
- analizy częstotliwościowej z parametrami.
- Umożliwia ona także zapis danych do pliku.
- **/
 package com.example.jakpe.vibrationdetector;
 
 import android.content.BroadcastReceiver;
@@ -12,17 +6,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 
 import com.example.jakpe.vibrationdetector.services.DFTService;
 import com.example.jakpe.vibrationdetector.services.DataService;
@@ -40,10 +33,10 @@ import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import lombok.val;
 
-public class AnalysisActivity extends AppCompatActivity{
+public class AnalysisActivity extends AppCompatActivity {
 
-    // podpięcie widoków do zmiennych
     @BindView(R.id.new_measurement_toolbar)
     Toolbar myToolbar;
     @BindView(R.id.accelerometer_graph)
@@ -65,24 +58,20 @@ public class AnalysisActivity extends AppCompatActivity{
     @BindView(R.id.acquisition_progress_bar)
     ProgressBar acquisitionProgressBar;
 
-    //inicjalizacja pól klasy
-    String axis;
+    private String axis;
     private double vectorTime;
-    StringBuilder stringBuilder = new StringBuilder();
-    double samplingFrequency;
-    SharedPreferences settings;
-    SharedPreferences.Editor editor;
+    private StringBuilder stringBuilder = new StringBuilder();
+    private double samplingFrequency;
     private LineGraphSeries<DataPoint> axisAccSeries;
-    Intent mySensorIntent;
+    private AcquisitionSettings acquisitionSettings = AcquisitionSettings.getAcquisitionSettings();
 
-    // metoda cyklu życia aktywności uruchamiana podczas jej tworzenia
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_analysis);
         ButterKnife.bind(this);
 
-        vectorTime=0.02;
+        vectorTime = 0.02;
         Bundle data = getIntent().getExtras();
         axis = data.getString("axis");
         FileSaver.verifyStoragePermissions(this);
@@ -90,12 +79,9 @@ public class AnalysisActivity extends AppCompatActivity{
         stringBuilder.append("resultValue").append(axis);
 
         initUi();
-
     }
 
-    //metoda inicjująca ustawienia interfejs
-    private void initUi(){
-
+    private void initUi() {
         setSupportActionBar(myToolbar);
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
@@ -108,15 +94,13 @@ public class AnalysisActivity extends AppCompatActivity{
         addSeries();
     }
 
-    // metoda dodająca serię do wykresu
-    private void addSeries(){
+    private void addSeries() {
         axisAccSeries = new LineGraphSeries<>();
         axisAccSeries.setColor(Color.CYAN);
         accelerometerGraph.addSeries(axisAccSeries);
     }
 
-    // metoda konfigurująca wykresy
-    private void configureGraphs(){
+    private void configureGraphs() {
         accelerometerGraph.getViewport().setXAxisBoundsManual(true);
         accelerometerGraph.getViewport().setMinX(0);
         accelerometerGraph.getViewport().setMaxX(2);
@@ -129,9 +113,9 @@ public class AnalysisActivity extends AppCompatActivity{
         accelerometerGraph.getGridLabelRenderer()
                 .setGridColor(Color.WHITE);
         accelerometerGraph.getGridLabelRenderer()
-                .setHorizontalAxisTitleColor(Color.rgb(0,128,255));
+                .setHorizontalAxisTitleColor(Color.rgb(0, 128, 255));
         accelerometerGraph.getGridLabelRenderer()
-                .setVerticalAxisTitleColor(Color.rgb(0,128,255));
+                .setVerticalAxisTitleColor(Color.rgb(0, 128, 255));
         accelerometerGraph.getGridLabelRenderer()
                 .setHorizontalAxisTitle("t[s]");
         accelerometerGraph.getGridLabelRenderer()
@@ -146,56 +130,49 @@ public class AnalysisActivity extends AppCompatActivity{
         dftGraph.getGridLabelRenderer().setHorizontalAxisTitle("f[Hz]");
         dftGraph.getGridLabelRenderer().setVerticalAxisTitle("A[m/s^2]");
         dftGraph.getGridLabelRenderer()
-                .setHorizontalAxisTitleColor(Color.rgb(0,128,255));
+                .setHorizontalAxisTitleColor(Color.rgb(0, 128, 255));
         dftGraph.getGridLabelRenderer()
-                .setVerticalAxisTitleColor(Color.rgb(0,128,255));
+                .setVerticalAxisTitleColor(Color.rgb(0, 128, 255));
     }
 
-
-    // metoda androidowa przypisująca menu do aktywności
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        getMenuInflater().inflate(R.menu.analysis_menu,menu);
+        getMenuInflater().inflate(R.menu.analysis_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
-    // metoda androidowa reagująca na wciśnięcie widoku w menu
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
-        settings = getSharedPreferences("AcquisitionSettings", 0);
-        editor = settings.edit();
+        SharedPreferences settings = getSharedPreferences("AcquisitionSettings", 0);
+        SharedPreferences.Editor editor = settings.edit();
 
         int clickedItemID = item.getItemId();
-        switch(clickedItemID){
-            // uruchomienie aktywności z ustawieniami
+        switch (clickedItemID) {
             case R.id.charts_settings:
-                    Intent chartsSettingsIntent = new Intent(this,
-                            ChartsSettingsActivity.class);
-                    startActivity(chartsSettingsIntent);
+                Intent chartsSettingsIntent = new Intent(this,
+                        ChartsSettingsActivity.class);
+                startActivity(chartsSettingsIntent);
                 break;
-            // uruchomienie aktywności z ustawieniami
             case R.id.acquisition_settings:
                 Intent acquisitionSettingsIntent = new Intent(this,
                         AcquisitionSettingsActivity.class);
                 startActivity(acquisitionSettingsIntent);
                 break;
-            // wystartowanie procedury zapisu do pliku
             case R.id.save:
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                acquisitionProgressBar.setMax(AcquisitionSettings.
-                        getMeasurementTime()*AcquisitionSettings.getSamplingFrequency());
+                acquisitionProgressBar.setMax(acquisitionSettings.
+                        getMeasurementTime() * acquisitionSettings.getSamplingFrequency());
                 acquisitionProgressBar.setVisibility(View.VISIBLE);
                 DataService.writingMode = true;
                 DataService.isStopped = true;
                 FileSaver.measurementStartDate = Calendar.getInstance().getTime();
-                AcquisitionSettings.fileCounter++;
-                editor.putInt("fileCounter", AcquisitionSettings.fileCounter);
+                acquisitionSettings.incrementFileCounter();
+                editor.putInt("fileCounter", acquisitionSettings.getFileCounter());
                 editor.apply();
                 updateProgressbar();
         }
@@ -204,20 +181,17 @@ public class AnalysisActivity extends AppCompatActivity{
         return super.onOptionsItemSelected(item);
     }
 
-
-    // metoda zwiększająca poziom paska postępu
-    private void updateProgressbar(){
+    private void updateProgressbar() {
+        val samplingFrequency = acquisitionSettings.getSamplingFrequency();
+        val measurementTime = acquisitionSettings.getMeasurementTime();
 
         new Thread(() -> {
             acquisitionProgressBar.setProgress(0);
-            for(int i=0; i<AcquisitionSettings.
-                    getSamplingFrequency()*AcquisitionSettings
-                    .getMeasurementTime(); i++){
+            for (int i = 0; i < samplingFrequency * measurementTime; i++) {
 
                 acquisitionProgressBar.incrementProgressBy(1);
                 try {
-                    Thread.sleep(1000/AcquisitionSettings
-                            .getSamplingFrequency());
+                    Thread.sleep(1000 / acquisitionSettings.getSamplingFrequency());
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -231,47 +205,41 @@ public class AnalysisActivity extends AppCompatActivity{
         }).start();
     }
 
-    // metoda uruchamiająca serwis DataService
-    private void startDataService(){
-        mySensorIntent = new Intent(this, DataService.class);
-        mySensorIntent.putExtra("axis" ,  axis);
+    private void startDataService() {
+        Intent mySensorIntent = new Intent(this, DataService.class);
+        mySensorIntent.putExtra("axis", axis);
         mySensorIntent.putExtra("Analysis Mode", "ON");
         startService(mySensorIntent);
     }
 
-    // obiekt odbierający transmisję broadcast od serwisu
     private BroadcastReceiver testReceiver = new BroadcastReceiver() {
         DataPoint dataPoint;
         Date previousDate;
 
-        // metoda wykonywana przy odbiorze transmisji
         @Override
         public void onReceive(Context context, Intent intent) {
             Date date = Calendar.getInstance().getTime();
 
-
-            if(!date.equals(previousDate)){
+            if (!date.equals(previousDate)) {
                 dateTextView.setText(date.toString());
-                previousDate=date;
+                previousDate = date;
             }
-
 
             int resultCode = intent.getIntExtra("resultCode",
                     RESULT_CANCELED);
             if (resultCode == RESULT_OK) {
                 double resultValue = intent.getDoubleExtra(stringBuilder.
-                        toString(),0);
+                        toString(), 0);
 
-                    dataPoint = new DataPoint(vectorTime, resultValue);
-                    appendData(dataPoint);
+                dataPoint = new DataPoint(vectorTime, resultValue);
+                appendData(dataPoint);
 
-                }
-                vectorTime+=(1/samplingFrequency);
             }
+            vectorTime += (1 / samplingFrequency);
+        }
 
     };
 
-    // obiekt odbierający transmisję broadcast od serwisu
     private BroadcastReceiver dftReceiver = new BroadcastReceiver() {
 
         // metoda wykonywana przy odbiorze transmisji
@@ -283,13 +251,13 @@ public class AnalysisActivity extends AppCompatActivity{
                 double absDftValues[] = intent
                         .getDoubleArrayExtra("acceleration values");
                 double frequencySize = intent
-                        .getDoubleExtra("frequency size", 0 );
+                        .getDoubleExtra("frequency size", 0);
                 double frequency = intent
                         .getDoubleExtra("highest frequency", 0);
                 double amplitudeForMaxFrequency = intent
                         .getDoubleExtra("amplitudeForMaxFrequency", 0);
                 double displacementAmplitudeForMaxFrequency = intent
-                        .getDoubleExtra("displacementAmplitudeForMaxFrequency" ,0);
+                        .getDoubleExtra("displacementAmplitudeForMaxFrequency", 0);
                 double maxAccelerationInWindowTime = intent
                         .getDoubleExtra("maxAccelerationInWindowTime", 0);
                 double numberOfSamples = intent
@@ -303,10 +271,10 @@ public class AnalysisActivity extends AppCompatActivity{
 
                 // start nowego wątku wyświetlającego dane DFT
                 new Thread(() -> {
-                    double xAxisPoint=0;
-                    for(int i=0; i<dataPoints.length; i++){
+                    double xAxisPoint = 0;
+                    for (int i = 0; i < dataPoints.length; i++) {
                         dataPoints[i] = new DataPoint(xAxisPoint, absDftValues[i]);
-                        xAxisPoint+=frequencySize;
+                        xAxisPoint += frequencySize;
                     }
                     showDftData(dataPoints, frequencySize);
                 }).start();
@@ -315,28 +283,22 @@ public class AnalysisActivity extends AppCompatActivity{
         }
     };
 
-    // metoda cyklu życia aktywności wywoływana gdy aktywność
-    // wróci po uśpieniu
     @Override
     protected void onResume() {
         super.onResume();
 
-        samplingFrequency = ChartsSettings.getSampligValue();
+        samplingFrequency = ChartsSettings.getChartsSettings().getSamplingValue();
 
         IntentFilter filter = new IntentFilter(DataService.ACTION);
         IntentFilter dftFilter = new IntentFilter(DFTService.ACTION);
 
-        // rejestracja obiektów odbierających broadcast
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(testReceiver, filter);
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(dftReceiver, dftFilter);
-        // start serwisu
         startDataService();
     }
 
-    // metoda cyklu życia aktywności wywoływana gdy aktywność przechodzi
-    // w stan uśpienia
     @Override
     protected void onPause() {
         super.onPause();
@@ -347,19 +309,15 @@ public class AnalysisActivity extends AppCompatActivity{
             e.printStackTrace();
         }
 
-        // odrejestrowanie obiektów broadcastReceiver
         LocalBroadcastManager.getInstance(this).unregisterReceiver(testReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(dftReceiver);
     }
 
-    // metoda dodająca punkt do serii
     public void appendData(DataPoint dataPoint) {
         axisAccSeries.appendData(dataPoint, true, 250);
     }
 
-
-    // metoda która wyświetla wykres DFT
-    public void showDftData(DataPoint[] dataPoints, double frequencySize){
+    public void showDftData(DataPoint[] dataPoints, double frequencySize) {
         dftGraph.getViewport().setMaxX(10);
         dftGraph.removeAllSeries();
 
@@ -368,37 +326,28 @@ public class AnalysisActivity extends AppCompatActivity{
         dftGraph.addSeries(dftSeries);
 
     }
-
-    // metoda ustawiająca tekst w widoku firstFrequencyTextView
-    private void setFrequency(double frequency){
+    private void setFrequency(double frequency) {
         String textF1 = "f1 = " + String.valueOf(frequency) + "Hz";
         firstFrequencyTextView.setText(textF1);
     }
 
-    // metoda ustawiająca tekst w widoku maxFrequencyAmplitudeTextView
-    public void setMaxFrequencyAmplitude(double maxFrequencyAmplitude){
+    public void setMaxFrequencyAmplitude(double maxFrequencyAmplitude) {
         String textAmax = "Amax = " + String.valueOf(maxFrequencyAmplitude) + "m/s^2";
         maxFrequencyAmplitudeTextView.setText(textAmax);
     }
 
-    // metoda ustawiająca tekst w widoku displacementAmplitudeForMaxFrequencyAmplitudeTextView
-    public void setDisplacementAmplitudeForMaxFrequency(double displacementAmplitudeForMaxFrequency){
+    public void setDisplacementAmplitudeForMaxFrequency(double displacementAmplitudeForMaxFrequency) {
         String textXmax = "Xmax = " + String.valueOf(displacementAmplitudeForMaxFrequency) + "mm";
         displacementAmplitudeForMaxFrequencyAmplitudeTextView.setText(textXmax);
     }
 
-    // metoda ustawiająca tekst w widoku maxAccelerationInWindowTimeTextView
-    public void setMaxAccelerationInWindowTimeTextView(double maxAccelerationInWindowTime){
+    public void setMaxAccelerationInWindowTimeTextView(double maxAccelerationInWindowTime) {
         String textAccelerationMax = "a_max = " + String.valueOf(maxAccelerationInWindowTime) + "m/s^2";
         maxAccelerationInWindowTimeTextView.setText(textAccelerationMax);
     }
 
-    // metoda ustawiająca tekst w widoku amountOfSamplesTextView
-    public void setAmountOfSamplesTextView(double amountOfSamples){
+    public void setAmountOfSamplesTextView(double amountOfSamples) {
         String textAmountOfSamples = "N = " + String.valueOf(amountOfSamples);
         amountOfSamplesTextView.setText(textAmountOfSamples);
     }
-
-
-
 }

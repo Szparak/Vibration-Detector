@@ -16,34 +16,30 @@ import butterknife.ButterKnife;
 
 public class ChartsSettingsActivity extends AppCompatActivity {
 
-    // Podpięcie widoków do zmiennych
     @BindView(R.id.chart_settings_gravity_force)
-    CheckBox gravityForceCheckbox;
+    private CheckBox gravityForceCheckbox;
     @BindView(R.id.chart_settings_sampling)
-    EditText samplingValue;
+    private EditText samplingValue;
     @BindView(R.id.chart_settings_window_time)
-    EditText windowTimeValue;
+    private EditText windowTimeValue;
     @BindView(R.id.chart_settings_save_button)
-    Button saveChartsSettingsButton;
+    private Button saveChartsSettingsButton;
 
-    //inicjalizacja pól klasy
-    SharedPreferences settings;
-    SharedPreferences.Editor editor;
+    private SharedPreferences settings;
+    private SharedPreferences.Editor editor;
+    private ChartsSettings chartsSettings = ChartsSettings.getChartsSettings();
 
-    // metoda cyklu życia aktywności uruchamiana podczas jej tworzenia
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_charts_settings);
         ButterKnife.bind(this);
 
-        // pobranie obiektu do przechowywania ustawień
         settings = getSharedPreferences("ChartsSettings", 0);
         editor = settings.edit();
 
         checkAndSetGravityState();
 
-        // listener reagujący na zdarzenie naciśnięcia przycisku
         saveChartsSettingsButton.setOnClickListener(v -> {
             if(!samplingValue.getText().toString().equals(""))
                 putSamplingValueIntoSharedPreferencesAndConfigFile();
@@ -54,45 +50,37 @@ public class ChartsSettingsActivity extends AppCompatActivity {
             putGravityForceIntoSharedPreferencesAndConfigFile();
             editor.apply();
 
-            // wiadomość o poprawnym zapisaniu danych
             Toast.makeText(this, "Your settings has been successfully saved", Toast.LENGTH_LONG).show();
         });
 
     }
 
-    // metoda ustawiająca stan checkboxa
     private void checkAndSetGravityState(){
         if(settings.getBoolean("gravityForceCheckboxState", false))
             gravityForceCheckbox.setChecked(true);
     }
 
-    // metoda zapisująca do ustawień wartość z pola edycji
     private void putSamplingValueIntoSharedPreferencesAndConfigFile(){
         Editable fromEditText = samplingValue.getText();
 
         int samplingValueInHz = Integer.valueOf(fromEditText.toString());
 
         editor.putInt("samplingValueInHz", samplingValueInHz);
-        ChartsSettings.setSampligValue(samplingValueInHz);
+        chartsSettings.setSamplingValue(samplingValueInHz);
     }
 
-    // metoda zapisująca do ustawień wartość z pola edycji
     private void putWindowTimeValueIntoSharedPreferencesAndConfigFile(){
         Editable fromEditText = windowTimeValue.getText();
 
         int windowTimeValueInSeconds = Integer.valueOf(fromEditText.toString());
 
         editor.putInt("windowTimeValueInSeconds", windowTimeValueInSeconds);
-        ChartsSettings.setWindowTimeValue(windowTimeValueInSeconds);
+        chartsSettings.setWindowTimeValue(windowTimeValueInSeconds);
     }
 
-    // metoda zapisująca do ustawień wartość z pola edycji
     private void putGravityForceIntoSharedPreferencesAndConfigFile(){
         boolean gravityForceCheckboxState = gravityForceCheckbox.isChecked();
         editor.putBoolean("gravityForceCheckboxState", gravityForceCheckboxState);
-        ChartsSettings.setGravityForce(gravityForceCheckboxState);
+        chartsSettings.setGravityForce(gravityForceCheckboxState);
     }
-
-
-
 }

@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion "27.0.2"
+    buildToolsVersion '28.0.2'
     defaultConfig {
         applicationId "com.example.jakpe.vibrationdetector"
         minSdkVersion 19
@@ -30,6 +30,7 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    compileOnly 'org.projectlombok:lombok:1.18.2'
     compile 'com.android.support:appcompat-v7:27.0.2'
     compile 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
